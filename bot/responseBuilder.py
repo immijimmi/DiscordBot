@@ -13,14 +13,14 @@ class ResponseBuilder:
     def __bool__(self):
         return bool(self._main)  # If main is empty the response should be empty
 
-    def Add(item, toFloor=True):
-        if toFloor:
+    def add(self, item, to_bottom=True):
+        if to_bottom:
             self._main.append(item)
 
         else:
             self._main.appendleft(item)
 
-    def Surround(item, inner=True, mirrored=True):
+    def surround(self, item, inner=True, mirrored=True):
         if inner:
             self._before.append(item)
             self._after.appendleft(item[::-1] if mirrored else item)
@@ -29,10 +29,10 @@ class ResponseBuilder:
             self._before.appendleft(item)
             self._after.append(item[::-1] if mirrored else item)
 
-    def Get(self):
+    def get(self):
         if self:
             return self._delimiter.join(self._before + self._main + self._after)
 
-    def Send(self):
+    async def send(self):
         for recipient in self.recipients:
-            recipient.send(self.Get())
+            await recipient.send(self.get())

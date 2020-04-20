@@ -1,53 +1,89 @@
 from objectExtensions import Extendable
-from managedState import State
-from managedState.registrar import Registrar
+from managedState import State, KeyQuery
+from managedState.registrar import Registrar, KeyQueryFactory
+from managedState.listeners import Listeners
 
 import json
 
+from .constants import KeyQueryFactories
 from .responseBuilder import ResponseBuilder
 
 class Handler(Extendable):
-    DATA_FILENAME = "data.json"
+    data_filename = "data.json"
 
     def __init__(self, client, extensions=[]):
-        super().__init__(extensions)
-        
         self.client = client
+
+        self.state = State(extensions=[Registrar, Listeners])
+        self._load_state()
+        self.state.add_listener("set", lambda metadata: self._save_state())
+        self._register_paths()
+
+        self.responses_working = []
+
+        super().__init__(extensions)
+
+    def get_member(self, member_identifier, requester=None):
+        if requester and type(member_identifier) == str:
+            user_nicknames = self.state.registered_get("user_nicknames", [requester.id])
+
+            for member_id in user_nicknames:
+                if user_nicknames[member_id].lower() == member_identifier.lower():
+                    member_identifier = member_id
+                    break
         
-        self.state = State(extensions=[Registrar])
-        self.LoadState()
+        for member in self.client.get_all_members():
+            if member.id == member_identifier:
+                return member
 
-        self.RegisterPaths()
+            elif type(member_identifier) == str and "#" in member_identifier:
+                if "{0}#{1}".format(member.name, member.discriminator).lower() == member_identifier.lower():
+                    return member
 
-    def RegisterPaths(self):
+    def get_member_name(self, member, requester=None):
+        if requester:
+            user_nicknames = self.state.registered_get("user_nicknames", [requester.id])
+
+            if member.id in user_nicknames:
+                return user_nicknames[member.id]
+
+        return "{0}#{1}".format(member.name, member.discriminator)
+
+    async def send_responses(self):
+        for response in self.responses_working:
+            if response:
+                await response.send()
+
+        self.responses_working.clear()
+
+    # Event function
+    def on_ready(self):
         pass
 
-    def LoadState(self):
+    # Event function
+    def process_message(self, message):
+        response = ResponseBuilder(recipients=[message.author])
+        
+        self.responses_working.append(response)
+
+    # Event function
+    def user_online(self, before, after):
+        response = ResponseBuilder(recipients=[after])
+        
+        self.responses_working.append(response)
+    
+    def _load_state(self):
         try:
-            with open(Handler.DATA_FILENAME, "r") as dataFile:
-                self.state.set(json.loads(dataFile.read()))
+            with open(Handler.data_filename, "r") as data_file:
+                self.state.set(json.loads(data_file.read()))
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as ex:
             pass
 
-    def SaveState(self):
-        with open(Handler.DATA_FILENAME, 'w') as dataFile:
-            dataFile.write(json.dumps(self.state.Get()))
+    def _save_state(self):
+        with open(Handler.data_filename, 'w') as data_file:
+            data_file.write(json.dumps(self.state.get()))
 
-    def OnReady(self):
-        pass
-
-    def ProcessMessage(self, message):
-        response = ResponseBuilder(recipients=[message.author])
-        
-        return response
-
-    def StatusChange(self, before, after):
-        response = ResponseBuilder()
-        
-        return response
-
-    def UserOnline(self, before, after):
-        response = ResponseBuilder(recipients=[after])
-        
-        return response
+    def _register_paths(self):
+        self.state.register("all_users_settings", ["user_settings"], [{}])
+        self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.user_id, "nicknames"], [{}, {}, {}])

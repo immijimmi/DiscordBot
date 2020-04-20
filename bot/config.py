@@ -1,2 +1,2 @@
 class Config:
-    TOKEN = ""
+    token = ""
