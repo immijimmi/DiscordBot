@@ -6,7 +6,8 @@ from managedState.listeners import Listeners
 import json
 
 from .constants import KeyQueryFactories
-from .responseBuilder import ResponseBuilder
+from .classes.responseBuilder import ResponseBuilder
+from .classes.eventTimeout import EventTimeout
 
 class Handler(Extendable):
     data_filename = "data.json"
@@ -19,6 +20,7 @@ class Handler(Extendable):
         self.state.add_listener("set", lambda metadata: self._save_state())
         self._register_paths()
 
+        self.timeouts = {}
         self.responses_working = []
 
         super().__init__(extensions)
@@ -50,11 +52,11 @@ class Handler(Extendable):
         return "{0}#{1}".format(member.name, member.discriminator)
 
     async def send_responses(self):
-        for response in self.responses_working:
+        while self.responses_working:
+            response = self.responses_working.pop(0)
+
             if response:
                 await response.send()
-
-        self.responses_working.clear()
 
     # Event function
     def on_ready(self):
@@ -62,15 +64,27 @@ class Handler(Extendable):
 
     # Event function
     def process_message(self, message):
-        response = ResponseBuilder(recipients=[message.author])
-        
-        self.responses_working.append(response)
+        timeout_key = "process_message|{0}|{1}".format(message.author.id, message.content)
+        timeout = self.timeouts.get(timeout_key, None)
+
+        if not timeout or timeout.is_expired():
+            self.timeouts[timeout_key] = EventTimeout(timeout_key)
+            
+            response = ResponseBuilder(recipients=[message.author])
+            
+            self.responses_working.append(response)
 
     # Event function
     def user_online(self, before, after):
-        response = ResponseBuilder(recipients=[after])
+        timeout_key = "user_online|{0}".format(after.id)
+        timeout = self.timeouts.get(timeout_key, None)
         
-        self.responses_working.append(response)
+        if not timeout or timeout.is_expired():
+            self.timeouts[timeout_key] = EventTimeout(timeout_key)
+            
+            response = ResponseBuilder(recipients=[after])
+
+            self.responses_working.append(response)
     
     def _load_state(self):
         try:

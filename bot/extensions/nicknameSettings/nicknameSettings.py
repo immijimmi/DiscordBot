@@ -1,6 +1,6 @@
 from objectExtensions import Extension
 
-from ..discordHandler import Handler
+from ...discordHandler import Handler
 
 class NicknameSettings(Extension):
     @staticmethod

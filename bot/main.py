@@ -3,7 +3,7 @@ from discord.state import Status
 
 from .config import Config
 from .discordHandler import Handler
-from .watchlist.watchlist import Watchlist
+from .extensions.watchlist.watchlist import Watchlist
 
 HANDLER = Handler(discord.Client(), extensions=[Watchlist])
 
