@@ -1,6 +1,6 @@
 from collections import deque
 
-class ResponseBuilder:
+class MessageBuilder:
     def __init__(self, recipients=[], delimiter="\n"):
         self._delimiter = delimiter
         
@@ -11,7 +11,7 @@ class ResponseBuilder:
         self.recipients = list(recipients)
 
     def __bool__(self):
-        return bool(self._main)  # If main is empty the response should be empty
+        return bool(self._main)  # If main is empty the message should be considered empty
 
     def add(self, item, to_bottom=True):
         if to_bottom:

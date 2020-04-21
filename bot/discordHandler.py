@@ -1,18 +1,21 @@
-from objectExtensions import Extendable
 from managedState import State, KeyQuery
 from managedState.registrar import Registrar, KeyQueryFactory
 from managedState.listeners import Listeners
 
 import json
+import logging
 
-from .constants import KeyQueryFactories
-from .classes.responseBuilder import ResponseBuilder
+from .constants import KeyQueryFactories, Defaults
+from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
 
-class Handler(Extendable):
+class Handler():
     data_filename = "data.json"
 
-    def __init__(self, client, extensions=[]):
+    def __init__(self, client, plugins=[]):
+        self.timeouts = {}
+
+        self.plugins = list(plugins)
         self.client = client
 
         self.state = State(extensions=[Registrar, Listeners])
@@ -20,14 +23,9 @@ class Handler(Extendable):
         self.state.add_listener("set", lambda metadata: self._save_state())
         self._register_paths()
 
-        self.timeouts = {}
-        self.responses_working = []
-
-        super().__init__(extensions)
-
     def get_member(self, member_identifier, requester=None):
         if requester and type(member_identifier) == str:
-            user_nicknames = self.state.registered_get("user_nicknames", [requester.id])
+            user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
             for member_id in user_nicknames:
                 if user_nicknames[member_id].lower() == member_identifier.lower():
@@ -44,47 +42,76 @@ class Handler(Extendable):
 
     def get_member_name(self, member, requester=None):
         if requester:
-            user_nicknames = self.state.registered_get("user_nicknames", [requester.id])
+            user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
             if member.id in user_nicknames:
                 return user_nicknames[member.id]
 
         return "{0}#{1}".format(member.name, member.discriminator)
 
-    async def send_responses(self):
-        while self.responses_working:
-            response = self.responses_working.pop(0)
-
-            if response:
-                await response.send()
-
     # Event function
     def on_ready(self):
-        pass
+        responses = []
+
+        for plugin in self.plugins:
+            plugin_responses = plugin.on_ready(self)
+
+            responses += plugin_responses if plugin_responses else []
+
+        return responses
 
     # Event function
     def process_message(self, message):
-        timeout_key = "process_message|{0}|{1}".format(message.author.id, message.content)
-        timeout = self.timeouts.get(timeout_key, None)
+        new_timeout_duration = 5  ##### TODO self.state.registered_get()
+        timeout_triggered = self.try_trigger_timeout("process_message|{0}|{1}".format(message.author.id, message.content), new_timeout_duration)
 
-        if not timeout or timeout.is_expired():
-            self.timeouts[timeout_key] = EventTimeout(timeout_key)
+        if timeout_triggered:
+            response = MessageBuilder(recipients=[message.author])
+        else:
+            response = None
             
-            response = ResponseBuilder(recipients=[message.author])
-            
-            self.responses_working.append(response)
+        responses = [response]
+
+        for plugin in self.plugins:
+            plugin_responses = plugin.process_message(message, self, handler_response=response)
+
+            responses += plugin_responses if plugin_responses else []
+
+        return responses
 
     # Event function
     def user_online(self, before, after):
-        timeout_key = "user_online|{0}".format(after.id)
-        timeout = self.timeouts.get(timeout_key, None)
+        new_timeout_duration = self.state.registered_get("user_welcome_timeout_duration", [str(after.id)])
+        timeout_triggered = self.try_trigger_timeout("user_online|{0}".format(after.id), new_timeout_duration)
         
-        if not timeout or timeout.is_expired():
-            self.timeouts[timeout_key] = EventTimeout(timeout_key)
-            
-            response = ResponseBuilder(recipients=[after])
+        if timeout_triggered:
+            response = MessageBuilder(recipients=[after])
+        else:
+            response = None
 
-            self.responses_working.append(response)
+        responses = [response]
+
+        for plugin in self.plugins:
+            plugin_responses = plugin.user_online(before, after, self, handler_response=response)
+
+            responses += plugin_responses if plugin_responses else []
+
+        return responses
+
+    def try_trigger_timeout(self, timeout_key, new_timeout_duration):
+        timeout = self.timeouts.get(timeout_key, None)
+
+        is_active_timeout = timeout and not timeout.is_expired()
+
+        if not is_active_timeout:
+            if timeout:
+                timeout.reset()
+            else:
+                self.timeouts[timeout_key] = EventTimeout(timeout_key, duration_seconds=new_timeout_duration)
+
+            return True
+
+        return False
     
     def _load_state(self):
         try:
@@ -92,7 +119,7 @@ class Handler(Extendable):
                 self.state.set(json.loads(data_file.read()))
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as ex:
-            pass
+            logging.warning("Unable to load application state from file: {0}".format(ex))
 
     def _save_state(self):
         with open(Handler.data_filename, 'w') as data_file:
@@ -100,4 +127,16 @@ class Handler(Extendable):
 
     def _register_paths(self):
         self.state.register("all_users_settings", ["user_settings"], [{}])
-        self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.user_id, "nicknames"], [{}, {}, {}])
+        self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
+        self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
+
+        for plugin in self.plugins:
+            plugin.register_paths(self)
+
+    @staticmethod
+    async def send_responses(responses):
+        while responses:
+            response = responses.pop(0)
+
+            if response:
+                await response.send()
