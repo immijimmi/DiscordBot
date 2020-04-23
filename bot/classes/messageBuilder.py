@@ -35,7 +35,7 @@ class MessageBuilder:
 
     def get(self):
         if self:
-            return self.mark + self._delimiter.join(self._before + [self.title] + self._main + self._after)
+            return self.mark + self._delimiter.join(self._before + deque([self.title]) + self._main + self._after)
 
     async def send(self):
         if self:

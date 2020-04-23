@@ -61,7 +61,7 @@ class Handler():
         
         if timeout_triggered:
             response = MessageBuilder(recipients=[after])
-            response.title = MessageFormats.welcome_header
+            response.title = MessageFormats.welcome_header + "\n"
         else:
             response = None
 
@@ -83,7 +83,7 @@ class Handler():
                     member_identifier = member_id
                     break
         
-        for member in self.client.get_all_members():
+        for member in self.client.get_all_members():  # Returns None if the member cannot be found
             if member.id == member_identifier:
                 return member
 
