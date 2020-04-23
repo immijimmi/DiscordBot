@@ -25,7 +25,7 @@ class Handler():
         self.plugins = [plugin(self) for plugin in plugins]
 
     #Event method
-    def on_ready(self):
+    async def on_ready(self):
         responses = []
 
         for plugin in self.plugins:
@@ -33,10 +33,10 @@ class Handler():
 
             responses += plugin_responses if plugin_responses else []
 
-        return responses
+        await Handler.send_responses(responses)
 
     #Event method
-    def process_message(self, message):
+    async def process_message(self, message):
         new_timeout_duration = 5  ##### TODO self.state.registered_get()
         timeout_triggered = self.try_trigger_timeout("process_message|{0}|{1}".format(message.author.id, message.content), new_timeout_duration)
 
@@ -52,10 +52,10 @@ class Handler():
 
             responses += plugin_responses if plugin_responses else []
 
-        return responses
+        await Handler.send_responses(responses)
 
     #Event method
-    def user_online(self, before, after):
+    async def user_online(self, before, after):
         new_timeout_duration = self.state.registered_get("user_welcome_timeout_duration", [str(after.id)])
         timeout_triggered = self.try_trigger_timeout("user_welcome|{0}".format(after.id), new_timeout_duration)
         
@@ -72,7 +72,7 @@ class Handler():
 
             responses += plugin_responses if plugin_responses else []
 
-        return responses
+        await Handler.send_responses(responses)
 
     def get_member(self, member_identifier, requester=None):
         if requester and type(member_identifier) == str:
