@@ -37,8 +37,7 @@ class Handler():
 
     #Event method
     async def process_message(self, message):
-        new_timeout_duration = 5  ##### TODO self.state.registered_get()
-        timeout_triggered = self.try_trigger_timeout("process_message|{0}|{1}".format(message.author.id, message.content), new_timeout_duration)
+        timeout_triggered = self.try_trigger_timeout("process_message|{0}|{1}".format(message.author.id, message.content), Defaults.timeout_duration)
 
         if timeout_triggered:
             response = MessageBuilder(recipients=[message.author])
@@ -56,14 +55,16 @@ class Handler():
 
     #Event method
     async def user_online(self, before, after):
-        new_timeout_duration = self.state.registered_get("user_welcome_timeout_duration", [str(after.id)])
-        timeout_triggered = self.try_trigger_timeout("user_welcome|{0}".format(after.id), new_timeout_duration)
-        
-        if timeout_triggered:
-            response = MessageBuilder(recipients=[after])
-            response.title = MessageFormats.welcome_header + "\n"
-        else:
-            response = None
+        setting_enabled = self.state.registered_get("user_welcome_enabled", [str(after.id)])
+
+        response = None
+        if setting_enabled:
+            new_timeout_duration = self.state.registered_get("user_welcome_timeout_duration", [str(after.id)])
+            timeout_triggered = self.try_trigger_timeout("user_welcome|{0}".format(after.id), new_timeout_duration)
+            
+            if timeout_triggered:
+                response = MessageBuilder(recipients=[after])
+                response.title = MessageFormats.welcome_header + "\n"
 
         responses = [response]
 
@@ -139,3 +140,4 @@ class Handler():
         self.state.register("all_users_settings", ["user_settings"], [{}])
         self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
         self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
+        self.state.register("user_welcome_enabled", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "enabled"], [{}, {}, {}, True])

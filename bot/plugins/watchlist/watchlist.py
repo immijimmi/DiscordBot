@@ -54,8 +54,9 @@ class Watchlist(HandlerPlugin):
 
             if after.id in user_watchlist:
                 watcher = self.handler.get_member(int(user_id_string))
+                setting_enabled = self.handler.state.registered_get("user_watchlist_alert_enabled", [user_id_string])
 
-                if watcher and (watcher.status == Status.online):
+                if watcher and setting_enabled and (watcher.status == Status.online):
                     new_timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [user_id_string])
                     timeout_triggered = self.handler.try_trigger_timeout("user_watchlist_alert|{0}|{1}".format(watcher.id, after.id), new_timeout_duration)
 
@@ -75,4 +76,9 @@ class Watchlist(HandlerPlugin):
             "user_watchlist_alert_timeout_duration",
             ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "timeout_duration"],
             [{}, {}, {}, {}, Defaults.timeout_duration]
+            )
+        self.handler.state.register(
+            "user_watchlist_alert_enabled",
+            ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "enabled"],
+            [{}, {}, {}, {}, True]
             )
