@@ -95,8 +95,8 @@ class Handler():
         if requester:
             user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
-            if member.id in user_nicknames:
-                return user_nicknames[member.id]
+            if str(member.id) in user_nicknames:
+                return user_nicknames[str(member.id)]
 
         return "{0}#{1}".format(member.name, member.discriminator)
 
