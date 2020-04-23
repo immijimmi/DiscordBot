@@ -5,3 +5,6 @@ class KeyQueryFactories:
 
 class Defaults:
     timeout_duration = 5
+
+class MessageFormats:
+    welcome_header = "**Welcome back!**"

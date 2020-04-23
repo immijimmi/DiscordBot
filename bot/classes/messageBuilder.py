@@ -38,5 +38,6 @@ class MessageBuilder:
             return self.mark + self._delimiter.join(self._before + [self.title] + self._main + self._after)
 
     async def send(self):
-        for recipient in self.recipients:
-            await recipient.send(self.get())
+        if self:
+            for recipient in self.recipients:
+                await recipient.send(self.get())

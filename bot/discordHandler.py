@@ -5,7 +5,7 @@ from managedState.listeners import Listeners
 import json
 import logging
 
-from .constants import KeyQueryFactories, Defaults
+from .constants import KeyQueryFactories, Defaults, MessageFormats
 from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
 
@@ -61,6 +61,7 @@ class Handler():
         
         if timeout_triggered:
             response = MessageBuilder(recipients=[after])
+            response.title = MessageFormats.welcome_header
         else:
             response = None
 
