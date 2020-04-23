@@ -11,15 +11,7 @@ class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-    def user_online(self, before, after, handler_response=None):
-        responses = []
-
-        for method in [self._watchlist_alerts, self._welcome_message]:
-            method_responses = method(before, after, handler_response)
-
-            responses += method_responses if method_responses else []
-
-        return responses
+        self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alerts]
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
