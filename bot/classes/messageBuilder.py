@@ -11,7 +11,7 @@ class MessageBuilder:
         self._after = deque()
 
         self.recipients = list(recipients)
-        self.title = ""
+        self.title = None
         self.mark = Defaults.message_mark
 
     def __bool__(self):
@@ -35,7 +35,7 @@ class MessageBuilder:
 
     def get(self):
         if self:
-            return self.mark + self._delimiter.join(self._before + deque([self.title]) + self._main + self._after)
+            return self.mark + self._delimiter.join(self._before + deque([self.title] if self.title is not None else []) + self._main + self._after)
 
     async def send(self):
         if self:
