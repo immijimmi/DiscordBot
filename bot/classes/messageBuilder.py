@@ -1,15 +1,18 @@
 from collections import deque
 
+from .constants import Defaults
+
 class MessageBuilder:
-    def __init__(self, recipients=[], delimiter="\n"):
+    def __init__(self, recipients=[], delimiter=Defaults.message_delimiter):
         self._delimiter = delimiter
 
         self._before = deque()
         self._main = deque()
         self._after = deque()
 
-        self.mark = ""
         self.recipients = list(recipients)
+        self.title = ""
+        self.mark = Defaults.message_mark
 
     def __bool__(self):
         return bool(self._main)  # If main is empty the message should be considered empty
@@ -32,7 +35,7 @@ class MessageBuilder:
 
     def get(self):
         if self:
-            return self.mark + self._delimiter.join(self._before + self._main + self._after)
+            return self.mark + self._delimiter.join(self._before + [self.title] + self._main + self._after)
 
     async def send(self):
         for recipient in self.recipients:
