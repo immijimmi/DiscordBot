@@ -8,45 +8,49 @@ from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats
 
 class Watchlist(HandlerPlugin):
-    @staticmethod
-    def register_paths(handler):
-        handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
-        handler.state.register("user_watchlist_alert_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "timeout_duration"], [{}, {}, {}, {}, Defaults.timeout_duration])
+    def __init__(self, handler):
+        super().__init__(handler)
 
-    #Event method
-    @staticmethod
-    def user_online(before, after, handler, handler_response=None):
+    def user_online(self, before, after, handler_response=None):
         responses = []
 
-        for method in [Watchlist._watchlist_alerts]:
-            method_responses = method(before, after, handler, handler_response)
+        for method in [self._watchlist_alerts]:
+            method_responses = method(before, after, handler_response)
 
             responses += method_responses if method_responses else []
 
         return responses
 
-    @staticmethod
-    def _watchlist_alerts(before, after, handler, handler_response=None):
-        all_saved_users = [user_id_string for user_id_string in handler.state.registered_get("all_users_settings")]
+    def _watchlist_alerts(self, before, after, handler_response=None):
+        all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
 
         responses = []
 
         for user_id_string in all_saved_users:
-            user_watchlist = handler.state.registered_get("user_watchlist", [user_id_string])
+            user_watchlist = self.handler.state.registered_get("user_watchlist", [user_id_string])
 
             if after.id in user_watchlist:
-                watcher = handler.get_member(int(user_id_string))
+                watcher = self.handler.get_member(int(user_id_string))
 
                 if watcher.status == Status.online:
-                    new_timeout_duration = handler.state.registered_get("user_watchlist_alert_timeout_duration", [user_id_string])
-                    timeout_triggered = handler.try_trigger_timeout("user_watchlist_alert|{0}|{1}".format(watcher.id, after.id), new_timeout_duration)
+                    new_timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [user_id_string])
+                    timeout_triggered = self.handler.try_trigger_timeout("user_watchlist_alert|{0}|{1}".format(watcher.id, after.id), new_timeout_duration)
 
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
-                        response.add(MessageFormats.watchlist_user_online.format(handler.get_member_name(after, watcher)))
+                        response.mark = ">>> "
+                        response.add(MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher)))
                     else:
                         response=None
 
                     responses.append(response)
 
         return responses
+
+    def _register_paths(self):
+        self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
+        self.handler.state.register(
+            "user_watchlist_alert_timeout_duration",
+            ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "timeout_duration"],
+            [{}, {}, {}, {}, Defaults.timeout_duration]
+            )

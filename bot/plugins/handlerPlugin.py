@@ -1,19 +1,20 @@
 class HandlerPlugin:
-    @staticmethod
-    def register_paths(handler):
+    def __init__(self, handler):
+        self.handler = handler
+
+        self._register_paths()
+
+    #Event method
+    def on_ready(self, handler_response=None):
         pass
 
     #Event method
-    @staticmethod
-    def on_ready(handler, handler_response=None):
+    def process_message(self, message, handler_response=None):
         pass
 
     #Event method
-    @staticmethod
-    def process_message(message, handler, handler_response=None):
+    def user_online(self, before, after, handler_response=None):
         pass
 
-    #Event method
-    @staticmethod
-    def user_online(before, after, handler, handler_response=None):
+    def _register_paths(self):
         pass

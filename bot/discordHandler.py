@@ -15,7 +15,6 @@ class Handler():
     def __init__(self, client, plugins=[]):
         self.timeouts = {}
 
-        self.plugins = list(plugins)
         self.client = client
 
         self.state = State(extensions=[Registrar, Listeners])
@@ -23,12 +22,14 @@ class Handler():
         self.state.add_listener("set", lambda metadata: self._save_state())
         self._register_paths()
 
+        self.plugins = [plugin(self) for plugin in plugins]
+
     #Event method
     def on_ready(self):
         responses = []
 
         for plugin in self.plugins:
-            plugin_responses = plugin.on_ready(self)
+            plugin_responses = plugin.on_ready()
 
             responses += plugin_responses if plugin_responses else []
 
@@ -47,7 +48,7 @@ class Handler():
         responses = [response]
 
         for plugin in self.plugins:
-            plugin_responses = plugin.process_message(message, self, handler_response=response)
+            plugin_responses = plugin.process_message(message, handler_response=response)
 
             responses += plugin_responses if plugin_responses else []
 
@@ -66,7 +67,7 @@ class Handler():
         responses = [response]
 
         for plugin in self.plugins:
-            plugin_responses = plugin.user_online(before, after, self, handler_response=response)
+            plugin_responses = plugin.user_online(before, after, handler_response=response)
 
             responses += plugin_responses if plugin_responses else []
 
@@ -137,6 +138,3 @@ class Handler():
         self.state.register("all_users_settings", ["user_settings"], [{}])
         self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
         self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
-
-        for plugin in self.plugins:
-            plugin.register_paths(self)
