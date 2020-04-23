@@ -3,11 +3,12 @@ from collections import deque
 class MessageBuilder:
     def __init__(self, recipients=[], delimiter="\n"):
         self._delimiter = delimiter
-        
+
         self._before = deque()
         self._main = deque()
         self._after = deque()
 
+        self.mark = ""
         self.recipients = list(recipients)
 
     def __bool__(self):
@@ -31,7 +32,7 @@ class MessageBuilder:
 
     def get(self):
         if self:
-            return self._delimiter.join(self._before + self._main + self._after)
+            return self.mark + self._delimiter.join(self._before + self._main + self._after)
 
     async def send(self):
         for recipient in self.recipients:
