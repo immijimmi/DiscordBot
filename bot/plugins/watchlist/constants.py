@@ -4,6 +4,8 @@ class MessageFormats:
     watchlist_user_online = "{0} is now Online."
     watchlist_welcome_title = "**Your watchlist:**"
 
+    status_order = [Status.online, Status.dnd, Status.idle, Status.offline, Status.invisible]
+
 class SymbolLookup:
     status = {
         Status.online: ":green_circle:",

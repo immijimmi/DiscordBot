@@ -28,12 +28,19 @@ class Watchlist(HandlerPlugin):
             if user_watchlist:
                 message = MessageFormats.watchlist_welcome_title + "\n"
 
+                user_statuses = {}
+
                 for user_id in user_watchlist:
                     user = self.handler.get_member(user_id)
 
                     if user:
                         user_name = self.handler.get_member_name(user, requester=after)
-                        message += user_name + " " + SymbolLookup.status[user.status] + "\n"
+                        user_status_message = SymbolLookup.status[user.status] + " " + user_name + "\n"
+                        
+                        user_statuses[user.status] = user_statuses.get(user.status, []) + [user_status_message]
+
+                for status in MessageFormats.status_order:
+                    message += "".join(user_statuses.get(status, []))
 
                 handler_response.add(message)
 
