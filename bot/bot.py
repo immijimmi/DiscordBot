@@ -7,7 +7,7 @@ class Bot(discord.Client):
     def __init__(self, token, plugins=[]):
         super().__init__()
         
-        self.handler = Handler(discord.Client(), plugins=plugins)
+        self.handler = Handler(self, plugins=plugins)
 
         self.run(token)
     
