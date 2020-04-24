@@ -51,6 +51,10 @@ class Handler():
 
             responses += plugin_responses if plugin_responses else []
 
+        # If none of the plugins could process the message and return a response
+        if not responses[0] and type(responses[0]) is MessageBuilder:
+            responses[0].add("Unrecognised command: `{0}`".format(message.content) + "\n")
+
         await Handler.send_responses(responses)
 
     #Event method
@@ -76,19 +80,21 @@ class Handler():
         await Handler.send_responses(responses)
 
     def get_member(self, member_identifier, requester=None):
-        if requester and type(member_identifier) == str:
+        member_identifier = str(member_identifier)  # Coalesce types to string only
+        
+        if requester:
             user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
-            for member_id in user_nicknames:
-                if user_nicknames[member_id].lower() == member_identifier.lower():
-                    member_identifier = member_id
+            for nickname_id_string in user_nicknames:
+                if user_nicknames[nickname_id_string].lower() == member_identifier.lower():
+                    member_identifier = nickname_id_string
                     break
         
         for member in self.client.get_all_members():  # Returns None if the member cannot be found
-            if member.id == member_identifier:
+            if str(member.id) == member_identifier:
                 return member
 
-            elif type(member_identifier) == str and "#" in member_identifier:
+            elif "#" in member_identifier:
                 if "{0}#{1}".format(member.name, member.discriminator).lower() == member_identifier.lower():
                     return member
 

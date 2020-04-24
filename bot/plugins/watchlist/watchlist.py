@@ -1,9 +1,11 @@
 from discord.state import Status
 
+import re
+
 from ...discordHandler import Handler
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
-from ...constants import KeyQueryFactories, Defaults
+from ...constants import KeyQueryFactories, Defaults, MessageFormats as HandlerMessageFormats
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats, SymbolLookup
 
@@ -12,6 +14,7 @@ class Watchlist(HandlerPlugin):
         super().__init__(handler)
 
         self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alerts]
+        self.event_methods["process_message"] += [self._watchlist_add]
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
@@ -61,6 +64,29 @@ class Watchlist(HandlerPlugin):
                     responses.append(response)
 
         return responses
+
+    def _watchlist_add(self, message, handler_response=None):
+        command = "!watchlist add "
+
+        if message.content[:len(command)] == command:
+            user_identifier = message.content[len(command):]
+
+            user = self.handler.get_member(user_identifier, requester=message.author)
+
+            if user:
+                watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
+
+                if user.id in watchlist:
+                    handler_response.add("{0} is already in your watchlist.".format(self.handler.get_member_name(user, requester=message.author)))
+
+                else:
+                    self.handler.state.registered_set(watchlist + [user.id], "user_watchlist", [str(message.author.id)])
+
+                    handler_response.add("{0} has been added to your watchlist.".format(self.handler.get_member_name(user, requester=message.author)))
+
+            else:
+                handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(user_identifier))
+            
 
     def _register_paths(self):
         self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
