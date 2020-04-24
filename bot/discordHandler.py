@@ -86,7 +86,7 @@ class Handler():
             user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
             for nickname_id_string in user_nicknames:
-                if user_nicknames[nickname_id_string].lower() == member_identifier.lower():
+                if user_nicknames[nickname_id_string].lower().strip() == member_identifier.lower().strip():
                     member_identifier = nickname_id_string
                     break
         
@@ -95,7 +95,7 @@ class Handler():
                 return member
 
             elif "#" in member_identifier:
-                if "{0}#{1}".format(member.name, member.discriminator).lower() == member_identifier.lower():
+                if "{0}#{1}".format(member.name, member.discriminator).lower().strip() == member_identifier.lower().strip():
                     return member
 
     def get_member_name(self, member, requester=None):

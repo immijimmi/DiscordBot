@@ -69,7 +69,7 @@ class Watchlist(HandlerPlugin):
         command = "!watchlist add "
 
         if message.content[:len(command)] == command:
-            target_identifier = message.content[len(command):]
+            target_identifier = message.content[len(command):].strip()
             target = self.handler.get_member(target_identifier, requester=message.author)
 
             if target:
@@ -91,7 +91,7 @@ class Watchlist(HandlerPlugin):
         command = "!watchlist remove "
 
         if message.content[:len(command)] == command:
-            target_identifier = message.content[len(command):]
+            target_identifier = message.content[len(command):].strip()
 
             target = self.handler.get_member(target_identifier, requester=message.author)
             watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
