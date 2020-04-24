@@ -112,7 +112,7 @@ class Watchlist(HandlerPlugin):
 
                 self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
 
-                handler_response.add("{0} has been removed from your watchlist.".format(target_name))
+                handler_response.add("{0} has been removed from your watchlist.".format(target_identifier))
 
             else:
                 handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
