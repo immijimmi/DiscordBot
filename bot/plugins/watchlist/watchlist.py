@@ -69,75 +69,78 @@ class Watchlist(HandlerPlugin):
     def _watchlist(self, message, handler_response=None):
         command = "!watchlist"
 
-        if message.content.lower().strip() == command:
-            watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
-            watchlist_names = []
+        if handler_response is not None:
+            if message.content.lower().strip() == command:
+                watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
+                watchlist_names = []
 
-            for target_id in watchlist:
-                target = self.handler.get_member(target_id)
-                target_name = self.handler.get_member_name(target, requester=message.author) if target else str(target_id)
-                watchlist_names.append(target_name)
+                for target_id in watchlist:
+                    target = self.handler.get_member(target_id)
+                    target_name = self.handler.get_member_name(target, requester=message.author) if target else str(target_id)
+                    watchlist_names.append(target_name)
 
-            if watchlist_names:
-                message = MessageFormats.watchlist_title + "\n"
-                message += "\n".join(watchlist_names)
+                if watchlist_names:
+                    message = MessageFormats.watchlist_title + "\n"
+                    message += "\n".join(watchlist_names)
 
-                handler_response.add(message)
+                    handler_response.add(message)
 
-            else:
-                handler_response.add("Your watchlist is empty.")
+                else:
+                    handler_response.add("Your watchlist is empty.")
 
     def _watchlist_add(self, message, handler_response=None):
         command = "!watchlist add "
 
-        if message.content[:len(command)].lower() == command:
-            target_identifier = message.content[len(command):].strip()
-            target = self.handler.get_member(target_identifier, requester=message.author)
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                target_identifier = message.content[len(command):].strip()
+                target = self.handler.get_member(target_identifier, requester=message.author)
 
-            if target:
-                target_name = self.handler.get_member_name(target, requester=message.author)
-                watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
+                if target:
+                    target_name = self.handler.get_member_name(target, requester=message.author)
+                    watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
-                if target.id in watchlist:
-                    handler_response.add("{0} is already in your watchlist.".format(target_name))
+                    if target.id in watchlist:
+                        handler_response.add("{0} is already in your watchlist.".format(target_name))
+
+                    else:
+                        self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
+
+                        handler_response.add("{0} has been added to your watchlist.".format(target_name))
 
                 else:
-                    self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
-
-                    handler_response.add("{0} has been added to your watchlist.".format(target_name))
-
-            else:
-                handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
+                    handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
     def _watchlist_remove(self, message, handler_response=None):
         command = "!watchlist remove "
 
-        if message.content[:len(command)].lower() == command:
-            target_identifier = message.content[len(command):].strip()
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                target_identifier = message.content[len(command):].strip()
 
-            target = self.handler.get_member(target_identifier, requester=message.author)
-            watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
+                target = self.handler.get_member(target_identifier, requester=message.author)
+                watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
-            if target:
-                target_name = self.handler.get_member_name(target, requester=message.author)
+                if target:
+                    target_name = self.handler.get_member_name(target, requester=message.author)
 
-                if target.id in watchlist:
-                    self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
+                    if target.id in watchlist:
+                        self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
 
-                    handler_response.add("{0} has been removed from your watchlist.".format(target_name))
+                        handler_response.add("{0} has been removed from your watchlist.".format(target_name))
+
+                    else:
+                        handler_response.add("{0} is not in your watchlist.".format(target_name))
+
+                elif target_identifier in [str(target_id) for target_id in watchlist]:
+                    target_id = int(target_identifier)
+
+                    self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
+
+                    handler_response.add("{0} has been removed from your watchlist.".format(target_identifier))
 
                 else:
-                    handler_response.add("{0} is not in your watchlist.".format(target_name))
-
-            elif target_identifier in [str(target_id) for target_id in watchlist]:
-                target_id = int(target_identifier)
-
-                self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
-
-                handler_response.add("{0} has been removed from your watchlist.".format(target_identifier))
-
-            else:
-                handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
+                    handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
     def _register_paths(self):
         self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
