@@ -1,4 +1,5 @@
 import discord
+from discord import TextChannel, VoiceChannel, DMChannel, GroupChannel
 from discord.state import Status
 
 from .discordHandler import Handler
@@ -22,7 +23,9 @@ class Bot(discord.Client):
         if message.channel.id in self.logger.destination_ids:
             return
 
-        if message.channel.is_private:
+        is_private = isinstance(message.channel, DMChannel)
+
+        if is_private:
             await self.handler.process_private_message(message)
         else:
             await self.handler.process_public_message(message)
