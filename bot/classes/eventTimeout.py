@@ -4,7 +4,7 @@ from ..constants import Defaults
 
 class EventTimeout:
     def __init__(self, key, duration_seconds=Defaults.timeout_duration):
-        self.__key= key
+        self.__key = key
         self.__duration = duration_seconds
 
         self.reset()
