@@ -69,7 +69,7 @@ class Watchlist(HandlerPlugin):
     def _watchlist(self, message, handler_response=None):
         command = "!watchlist"
 
-        if message.content.lower() == command:
+        if message.content.lower().strip() == command:
             watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
             watchlist_names = []
 
