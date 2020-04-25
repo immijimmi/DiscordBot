@@ -10,8 +10,6 @@ from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
 
 class Handler():
-    data_filename = "data.json"
-
     def __init__(self, client, plugins=[]):
         self.timeouts = {}
 
@@ -136,14 +134,14 @@ class Handler():
     
     def _load_state(self):
         try:
-            with open(Handler.data_filename, "r") as data_file:
+            with open(Defaults.state_filename, "r") as data_file:
                 self.state.set(json.loads(data_file.read()))
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as ex:
             logging.warning("Unable to load application state from file: {0}".format(ex))
 
     def _save_state(self):
-        with open(Handler.data_filename, 'w') as data_file:
+        with open(Defaults.state_filename, 'w') as data_file:
             data_file.write(json.dumps(self.state.get()))
 
     def _register_paths(self):
