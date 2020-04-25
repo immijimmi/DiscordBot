@@ -2,7 +2,7 @@ class HandlerPlugin:
     def __init__(self, handler):
         self.handler = handler
 
-        self.event_methods = {"on_ready": [], "process_message": [], "user_online": []}
+        self.event_methods = {"on_ready": [], "process_private_message": [self._help_private], "process_public_message": [], "user_online": []}
 
         self._register_paths()
 
@@ -16,10 +16,20 @@ class HandlerPlugin:
 
         return responses
 
-    def process_message(self, message, handler_response=None):
+    def process_private_message(self, message, handler_response=None):
         responses = []
 
-        for method in self.event_methods["process_message"]:
+        for method in self.event_methods["process_private_message"]:
+            method_responses = method(message, handler_response=handler_response)
+
+            responses += method_responses if method_responses else []
+
+        return responses
+
+    def process_public_message(self, message, handler_response=None):
+        responses = []
+
+        for method in self.event_methods["process_public_message"]:
             method_responses = method(message, handler_response=handler_response)
 
             responses += method_responses if method_responses else []
@@ -35,6 +45,9 @@ class HandlerPlugin:
             responses += method_responses if method_responses else []
 
         return responses
+
+    def _help_private(self, message, handler_response=None):
+        pass  ##### TODO
 
     def _register_paths(self):
         pass

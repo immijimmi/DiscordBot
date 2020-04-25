@@ -22,7 +22,7 @@ class Handler():
         self.state.add_listener("set", lambda metadata: self._save_state())
         self._register_paths()
 
-        self.plugins = [plugin(self) for plugin in plugins]
+        self.plugins = tuple(plugin(self) for plugin in plugins)
 
     #Event method
     async def on_ready(self):
@@ -36,8 +36,8 @@ class Handler():
         await Handler.send_responses(responses)
 
     #Event method
-    async def process_message(self, message):
-        timeout_triggered = self.try_trigger_timeout("process_message|{0}|{1}".format(message.author.id, message.content), Defaults.timeout_duration)
+    async def process_private_message(self, message):
+        timeout_triggered = self.try_trigger_timeout("process_private_message|{0}|{1}".format(message.author.id, message.content), Defaults.timeout_duration)
 
         if timeout_triggered:
             response = MessageBuilder(recipients=[message.author])
@@ -47,7 +47,7 @@ class Handler():
         responses = [response]
 
         for plugin in self.plugins:
-            plugin_responses = plugin.process_message(message, handler_response=response)
+            plugin_responses = plugin.process_private_message(message, handler_response=response)
 
             responses += plugin_responses if plugin_responses else []
 
@@ -56,6 +56,10 @@ class Handler():
             responses[0].add("Unrecognised command: `{0}`".format(message.content) + "\n")
 
         await Handler.send_responses(responses)
+
+    # Event method
+    async def process_public_message(self, message):
+        pass  ##### TODO
 
     #Event method
     async def user_online(self, before, after):
