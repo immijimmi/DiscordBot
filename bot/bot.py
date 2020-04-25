@@ -30,6 +30,8 @@ class Bot(discord.Client):
             await self.handler.process_public_message(message)
 
     async def on_member_update(self, before, after):
+        if after == self.user:
+            return
+        
         if before.status != Status.online and after.status == Status.online:
-            if after != self.handler.client.user:
-                await self.handler.user_online(before, after)
+            await self.handler.user_online(before, after)
