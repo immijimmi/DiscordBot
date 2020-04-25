@@ -14,7 +14,7 @@ class Watchlist(HandlerPlugin):
         super().__init__(handler)
 
         self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alerts]
-        self.event_methods["process_message"] += [self._watchlist_add, self._watchlist_remove]
+        self.event_methods["process_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
