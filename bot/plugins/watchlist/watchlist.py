@@ -1,11 +1,8 @@
 from discord.state import Status
 
-import re
-
-from ...discordHandler import Handler
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
-from ...constants import KeyQueryFactories, Defaults, MessageFormats as HandlerMessageFormats
+from ...constants import KeyQueryFactories, Defaults, Methods, MessageFormats as HandlerMessageFormats
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats, SymbolLookup
 
@@ -70,7 +67,7 @@ class Watchlist(HandlerPlugin):
         command = "!watchlist"
 
         if handler_response is not None:
-            if message.content.lower().strip() == command:
+            if Methods.sanitise_message(message.content).lower() == command:
                 watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
                 watchlist_names = []
 
@@ -93,7 +90,7 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                target_identifier = message.content[len(command):].strip()
+                target_identifier = Methods.sanitise_message(message.content[len(command):])
                 target = self.handler.get_member(target_identifier, requester=message.author)
 
                 if target:
@@ -116,7 +113,7 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                target_identifier = message.content[len(command):].strip()
+                target_identifier = Methods.sanitise_message(message.content[len(command):])
 
                 target = self.handler.get_member(target_identifier, requester=message.author)
                 watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])

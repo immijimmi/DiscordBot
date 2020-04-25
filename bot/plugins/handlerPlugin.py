@@ -1,3 +1,4 @@
+from ..constants import Methods
 from .constants import MessageFormats
 
 class HandlerPlugin:
@@ -67,7 +68,7 @@ class HandlerPlugin:
         command = "!help"
 
         if handler_response is not None:
-            if message.content.lower().strip() == command:
+            if Methods.sanitise_message(message.content).lower() == command:
                 handler_response.title = "**Command List:**" + "\n"
                 handler_response.title += "*Key: "
                 handler_response.title += ":lock: `used by messaging the bot` "

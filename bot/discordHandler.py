@@ -31,7 +31,7 @@ class Handler():
 
             responses += plugin_responses if plugin_responses else []
 
-        await Handler.send_responses(responses)
+        await self._send_responses(responses)
 
     #Event method
     async def process_private_message(self, message):
@@ -53,7 +53,7 @@ class Handler():
         if not responses[0] and type(responses[0]) is MessageBuilder:
             responses[0].add("Unrecognised command: `{0}`".format(message.content) + "\n")
 
-        await Handler.send_responses(responses)
+        await self._send_responses(responses)
 
     # Event method
     async def process_public_message(self, message):
@@ -79,7 +79,7 @@ class Handler():
 
             responses += plugin_responses if plugin_responses else []
 
-        await Handler.send_responses(responses)
+        await self._send_responses(responses)
 
     def get_member(self, member_identifier, requester=None):
         member_identifier = str(member_identifier)  # Coalesce types to string only
@@ -124,6 +124,13 @@ class Handler():
 
         return False
 
+    async def _send_responses(self, responses):
+        while responses:
+            response = responses.pop(0)
+
+            if response:
+                await response.send()
+
     def _load_state(self):
         try:
             with open(Defaults.state_filename, "r") as data_file:
@@ -141,11 +148,3 @@ class Handler():
         self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
         self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
         self.state.register("user_welcome_enabled", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "enabled"], [{}, {}, {}, True])
-
-    @staticmethod
-    async def send_responses(responses):
-        while responses:
-            response = responses.pop(0)
-
-            if response:
-                await response.send()
