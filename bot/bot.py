@@ -24,7 +24,6 @@ class Bot(discord.Client):
             return
 
         is_private = isinstance(message.channel, DMChannel)
-
         if is_private:
             await self.handler.process_private_message(message)
         else:
