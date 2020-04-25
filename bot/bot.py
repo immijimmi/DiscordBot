@@ -19,14 +19,11 @@ class Bot(discord.Client):
     async def on_message(self, message):
         if message.author == self.user:
             return
-
-        message_destination_ids = [recipient.id for recipient in message.channel.recipients] + [message.channel.id]
-        if any([log_destination_id in message_destination_ids for log_destination_id in self.logger.destination_ids]):
+        if message.channel.id in self.logger.destination_ids:
             return
 
         if message.channel.is_private:
             await self.handler.process_private_message(message)
-
         else:
             await self.handler.process_public_message(message)
 
