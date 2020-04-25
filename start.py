@@ -1,6 +1,6 @@
 from bot import Bot
-from bot.plugins.watchlist import Watchlist
+from bot.plugins import Watchlist, HelpCommand
 
 from config import Config
 
-Bot(Config.token, plugins=[Watchlist], log_destination_ids=Config.log_destination_ids)
+Bot(Config.token, plugins=[Watchlist, HelpCommand], log_destination_ids=Config.log_destination_ids)
