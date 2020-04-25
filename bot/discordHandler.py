@@ -124,14 +124,6 @@ class Handler():
 
         return False
 
-    @staticmethod
-    async def send_responses(responses):
-        while responses:
-            response = responses.pop(0)
-
-            if response:
-                await response.send()
-    
     def _load_state(self):
         try:
             with open(Defaults.state_filename, "r") as data_file:
@@ -149,3 +141,11 @@ class Handler():
         self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
         self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
         self.state.register("user_welcome_enabled", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "enabled"], [{}, {}, {}, True])
+
+    @staticmethod
+    async def send_responses(responses):
+        while responses:
+            response = responses.pop(0)
+
+            if response:
+                await response.send()
