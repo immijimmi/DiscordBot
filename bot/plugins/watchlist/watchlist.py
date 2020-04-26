@@ -83,7 +83,7 @@ class Watchlist(HandlerPlugin):
                 if watcher:
                     alert_key = EventKeys.watchlist_alerts.format(watcher.id, after.id)
                     alerts = self._watchlist_alerts.get(alert_key, [])
-                    del self._watchlist_alerts[alert_key]
+                    self._watchlist_alerts[alert_key] = []
 
                     async def delete_alert_messages():
                         for discord_message in alerts:
