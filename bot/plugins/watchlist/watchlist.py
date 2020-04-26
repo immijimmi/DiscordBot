@@ -10,10 +10,11 @@ class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._watchlist_alerts_messages = {}
+        self._watchlist_alerts = {}
 
-        self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alerts]
+        self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alert]
         self.event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
+        self.event_methods["user_away"] += [self._watchlist_remove_alert]
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
@@ -39,7 +40,7 @@ class Watchlist(HandlerPlugin):
 
                     handler_response.add(message)
 
-    def _watchlist_alerts(self, before, after, handler_response=None):
+    def _watchlist_alert(self, before, after, handler_response=None):
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
 
         responses = []
@@ -58,7 +59,7 @@ class Watchlist(HandlerPlugin):
 
                     if timeout_triggered:
                         def track_alert_message(discord_message):
-                            self._watchlist_alerts_messages[alert_key] = self._watchlist_alerts_messages.get(alert_key, []) + [discord_message]
+                            self._watchlist_alerts[alert_key] = self._watchlist_alerts.get(alert_key, []) + [discord_message]
 
                         response = MessageBuilder([watcher])
                         response.add(MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher)))
@@ -69,6 +70,9 @@ class Watchlist(HandlerPlugin):
                     responses.append(response)
 
         return responses
+
+    def _watchlist_remove_alert(self, before, after, handler_response=None):
+        pass  ##### TODO
 
     def _watchlist(self, message, handler_response=None):
         command = "!watchlist"
