@@ -1,5 +1,7 @@
 from discord.state import Status
 
+from functools import partial
+
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...constants import KeyQueryFactories, Defaults, Methods, MessageFormats as HandlerMessageFormats
@@ -41,6 +43,9 @@ class Watchlist(HandlerPlugin):
                     handler_response.add(message)
 
     def _watchlist_alert(self, before, after, handler_response=None):
+        def track_alert_message(alert_key, discord_message):
+            self._watchlist_alerts[alert_key] = self._watchlist_alerts.get(alert_key, []) + [discord_message]
+
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
 
         responses = []
@@ -58,12 +63,9 @@ class Watchlist(HandlerPlugin):
                     timeout_triggered = self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
                     if timeout_triggered:
-                        def track_alert_message(discord_message):
-                            self._watchlist_alerts[alert_key] = self._watchlist_alerts.get(alert_key, []) + [discord_message]
-
                         response = MessageBuilder([watcher])
                         response.add(MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher)))
-                        response.add_callback(track_alert_message)
+                        response.add_callback(partial(track_alert_message, alert_key))
                     else:
                         response=None
 
@@ -72,6 +74,13 @@ class Watchlist(HandlerPlugin):
         return responses
 
     def _watchlist_remove_alert(self, before, after, handler_response=None):
+        async def delete_alert_messages(alert_key):
+            alert_messages = self._watchlist_alerts.get(alert_key, [])
+            self._watchlist_alerts[alert_key] = []
+
+            for discord_message in alert_messages:
+                await discord_message.delete()
+
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
 
         for watcher_id_string in all_saved_users:
@@ -82,14 +91,8 @@ class Watchlist(HandlerPlugin):
 
                 if watcher:
                     alert_key = EventKeys.watchlist_alerts.format(watcher.id, after.id)
-                    alerts = self._watchlist_alerts.get(alert_key, [])
-                    self._watchlist_alerts[alert_key] = []
-
-                    async def delete_alert_messages():
-                        for discord_message in alerts:
-                            await discord_message.delete()
-
-                    self.handler.add_callback(delete_alert_messages)
+                    
+                    self.handler.add_callback(partial(delete_alert_messages, alert_key))
 
     def _watchlist(self, message, handler_response=None):
         command = "!watchlist"
