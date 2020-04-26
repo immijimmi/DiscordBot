@@ -4,11 +4,13 @@ from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...constants import KeyQueryFactories, Defaults, Methods, MessageFormats as HandlerMessageFormats
 from ..handlerPlugin import HandlerPlugin
-from .constants import MessageFormats, SymbolLookup
+from .constants import MessageFormats, SymbolLookup, EventKeys
 
 class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
+
+        self._watchlist_alerts_messages = {}
 
         self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alerts]
         self.event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
@@ -51,11 +53,16 @@ class Watchlist(HandlerPlugin):
 
                 if watcher and setting_enabled and (watcher.status == Status.online):
                     new_timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [watcher_id_string])
-                    timeout_triggered = self.handler.try_trigger_timeout("user_watchlist_alert|{0}|{1}".format(watcher.id, after.id), new_timeout_duration)
+                    alert_key = EventKeys.watchlist_alerts.format(watcher.id, after.id)
+                    timeout_triggered = self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
                     if timeout_triggered:
+                        def track_alert_message(discord_message):
+                            self._watchlist_alerts_messages[alert_key] = self._watchlist_alerts_messages.get(alert_key, []) + [discord_message]
+
                         response = MessageBuilder([watcher])
                         response.add(MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher)))
+                        response.add_callback(track_alert_message)
                     else:
                         response=None
 

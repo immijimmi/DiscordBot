@@ -35,3 +35,6 @@ class Bot(discord.Client):
         
         if before.status != Status.online and after.status == Status.online:
             await self.handler.user_online(before, after)
+
+        elif before.status == Status.online and after.status != Status.online:
+            await self.handler.user_away(before, after)

@@ -81,6 +81,17 @@ class Handler():
 
         await self._send_responses(responses)
 
+    #Event method
+    async def user_away(self, before, after):
+        responses = []
+
+        for plugin in self.plugins:
+            plugin_responses = plugin.user_away(before, after)
+
+            responses += plugin_responses if plugin_responses else []
+
+        await self._send_responses(responses)
+
     def get_member(self, member_identifier, requester=None):
         member_identifier = str(member_identifier)  # Coalesce types to string only
         

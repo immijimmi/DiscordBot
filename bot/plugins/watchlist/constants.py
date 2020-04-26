@@ -14,3 +14,6 @@ class SymbolLookup:
         Status.offline: ":white_circle:",
         Status.invisible: ":black_circle:"
         }
+
+class EventKeys:
+    watchlist_alerts = "user_watchlist_alert|{0}|{1}"

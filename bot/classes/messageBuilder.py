@@ -45,7 +45,7 @@ class MessageBuilder:
     async def send(self):
         if self:
             for recipient in self.recipients:
-                message_object = await recipient.send(self.get())
+                discord_message = await recipient.send(self.get())
                 
                 for callback in self._callbacks:
-                    callback(message_object)
+                    callback(discord_message)
