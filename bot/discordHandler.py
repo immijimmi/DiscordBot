@@ -11,7 +11,8 @@ from .classes.eventTimeout import EventTimeout
 
 class Handler():
     def __init__(self, client, plugins=[]):
-        self.timeouts = {}
+        self._timeouts = {}  # Stores cooldowns for specific bot actions
+        self._callbacks = []  # Stores async callbacks created by plugins
 
         self.client = client
 
@@ -21,6 +22,24 @@ class Handler():
         self._register_paths()
 
         self.plugins = tuple(plugin(self) for plugin in plugins)
+
+    def add_callback(self, callback):
+        self._callbacks.append(callback)
+
+    def try_trigger_timeout(self, timeout_key, new_timeout_duration):
+        timeout = self._timeouts.get(timeout_key, None)
+
+        is_active_timeout = timeout and not timeout.is_expired()
+
+        if not is_active_timeout:
+            if timeout:
+                timeout.reset()
+            else:
+                self._timeouts[timeout_key] = EventTimeout(timeout_key, duration_seconds=new_timeout_duration)
+
+            return True
+
+        return False
 
     #Event method
     async def on_ready(self):
@@ -32,6 +51,8 @@ class Handler():
             responses += plugin_responses if plugin_responses else []
 
         await self._send_responses(responses)
+        while self._callbacks:
+            await self._callbacks.pop(0)()
 
     #Event method
     async def process_private_message(self, message):
@@ -54,6 +75,8 @@ class Handler():
             responses[0].add("Unrecognised command: `{0}`".format(message.content) + "\n")
 
         await self._send_responses(responses)
+        while self._callbacks:
+            await self._callbacks.pop(0)()
 
     # Event method
     async def process_public_message(self, message):
@@ -80,6 +103,8 @@ class Handler():
             responses += plugin_responses if plugin_responses else []
 
         await self._send_responses(responses)
+        while self._callbacks:
+            await self._callbacks.pop(0)()
 
     #Event method
     async def user_away(self, before, after):
@@ -91,6 +116,8 @@ class Handler():
             responses += plugin_responses if plugin_responses else []
 
         await self._send_responses(responses)
+        while self._callbacks:
+            await self._callbacks.pop(0)()
 
     def get_member(self, member_identifier, requester=None):
         member_identifier = str(member_identifier)  # Coalesce types to string only
@@ -119,21 +146,6 @@ class Handler():
                 return user_nicknames[str(member.id)]
 
         return "{0}#{1}".format(member.name, member.discriminator)
-
-    def try_trigger_timeout(self, timeout_key, new_timeout_duration):
-        timeout = self.timeouts.get(timeout_key, None)
-
-        is_active_timeout = timeout and not timeout.is_expired()
-
-        if not is_active_timeout:
-            if timeout:
-                timeout.reset()
-            else:
-                self.timeouts[timeout_key] = EventTimeout(timeout_key, duration_seconds=new_timeout_duration)
-
-            return True
-
-        return False
 
     async def _send_responses(self, responses):
         while responses:
