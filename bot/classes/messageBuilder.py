@@ -10,6 +10,8 @@ class MessageBuilder:
         self._main = deque()
         self._after = deque()
 
+        self._callbacks = []
+
         self.recipients = list(recipients)
         self.title = None
         self.mark = Defaults.message_mark
@@ -33,6 +35,9 @@ class MessageBuilder:
             self._before.appendleft(item)
             self._after.append(item[::-1] if mirrored else item)
 
+    def add_callback(self, callback):  # Callback methods will recieve a single argument, the message object returned by Discord
+        self._callbacks.append(callback)
+
     def get(self):
         if self:
             return self.mark + self._delimiter.join(self._before + deque([self.title] if self.title is not None else []) + self._main + self._after)
@@ -40,4 +45,7 @@ class MessageBuilder:
     async def send(self):
         if self:
             for recipient in self.recipients:
-                await recipient.send(self.get())
+                message_object = await recipient.send(self.get())
+                
+                for callback in self._callbacks:
+                    callback(message_object)
