@@ -4,6 +4,7 @@ from managedState.listeners import Listeners
 
 import json
 import logging
+from collections import deque
 
 from .constants import KeyQueryFactories, Defaults, MessageFormats, Permissions
 from .classes.messageBuilder import MessageBuilder
@@ -12,7 +13,7 @@ from .classes.eventTimeout import EventTimeout
 class Handler():
     def __init__(self, client, plugins=[]):
         self._timeouts = {}  # Stores cooldowns for specific bot actions
-        self._callbacks = []  # Stores async callbacks created by plugins
+        self._callbacks = deque()  # Stores async callbacks created by plugins
 
         self.client = client
 
@@ -23,8 +24,11 @@ class Handler():
 
         self.plugins = tuple(plugin(self) for plugin in plugins)
 
-    def add_callback(self, callback):
-        self._callbacks.append(callback)
+    def add_callback(self, callback, to_end=False):  # Callbacks added with to_end as True will be called last
+        if to_end:
+            self._callbacks.appendleft(callback)  # Callbacks are popped and ran so index 0 is the last
+        else:
+            self._callbacks.append(callback)
 
     def try_trigger_timeout(self, timeout_key, new_timeout_duration):
         timeout = self._timeouts.get(timeout_key, None)

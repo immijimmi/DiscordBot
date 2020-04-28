@@ -19,8 +19,8 @@ class MessageBuilder:
     def __bool__(self):
         return bool(self._main)  # If main is empty the message should be considered empty
 
-    def add(self, item, to_bottom=True):
-        if to_bottom:
+    def add(self, item, to_end=True):
+        if to_end:
             self._main.append(item)
 
         else:
