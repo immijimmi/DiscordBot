@@ -55,8 +55,7 @@ class Handler():
             responses += plugin_responses if plugin_responses else []
 
         await self._send_responses(responses)
-        while self._callbacks:
-            await self._callbacks.pop(0)()
+        await self._run_callbacks()
 
     #Event method
     async def process_private_message(self, message):
@@ -79,8 +78,7 @@ class Handler():
             responses[0].add("Unrecognised command: `{0}`".format(message.content) + "\n")
 
         await self._send_responses(responses)
-        while self._callbacks:
-            await self._callbacks.pop(0)()
+        await self._run_callbacks()
 
     # Event method
     async def process_public_message(self, message):
@@ -107,8 +105,7 @@ class Handler():
             responses += plugin_responses if plugin_responses else []
 
         await self._send_responses(responses)
-        while self._callbacks:
-            await self._callbacks.pop(0)()
+        await self._run_callbacks()
 
     #Event method
     async def user_away(self, before, after):
@@ -120,8 +117,7 @@ class Handler():
             responses += plugin_responses if plugin_responses else []
 
         await self._send_responses(responses)
-        while self._callbacks:
-            await self._callbacks.pop(0)()
+        await self._run_callbacks()
 
     def get_member(self, member_identifier, requester=None):
         member_identifier = str(member_identifier)  # Coalesce types to string only
@@ -150,6 +146,10 @@ class Handler():
                 return user_nicknames[str(member.id)]
 
         return "{0}#{1}".format(member.name, member.discriminator)
+
+    async def _run_callbacks(self):
+        while self._callbacks:
+            await self._callbacks.pop()()
 
     async def _send_responses(self, responses):
         while responses:

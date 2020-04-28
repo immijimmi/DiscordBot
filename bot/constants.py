@@ -1,5 +1,9 @@
 from managedState.registrar import KeyQueryFactory
 
+class Permissions:
+    level_none = 0
+    level_admin = 1
+
 class KeyQueryFactories:
     dynamic_key = KeyQueryFactory(lambda sub_state, user_id: user_id)
 
@@ -18,7 +22,3 @@ class Methods:
     @staticmethod
     def sanitise_message(message):
         return message.strip().replace("\n", "")
-
-class Permissions:
-    level_none = 0
-    level_admin = 1
