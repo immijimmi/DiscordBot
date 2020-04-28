@@ -18,6 +18,8 @@ class Meta(HandlerPlugin):
             else:
                 pass  # Does not support all platforms currently
 
+            raise SystemExit
+
         command = "!reboot"
 
         if Methods.sanitise_message(message.content).lower() == command:
