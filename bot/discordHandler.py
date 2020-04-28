@@ -5,7 +5,7 @@ from managedState.listeners import Listeners
 import json
 import logging
 
-from .constants import KeyQueryFactories, Defaults, MessageFormats
+from .constants import KeyQueryFactories, Defaults, MessageFormats, Permissions
 from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
 
@@ -171,3 +171,6 @@ class Handler():
         self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
         self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
         self.state.register("user_welcome_enabled", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "enabled"], [{}, {}, {}, True])
+
+        self.state.register("user_permissions_level", ["user_settings", KeyQueryFactories.dynamic_key, "permissions", "level"], [{}, {}, Defaults.permissions, Permissions.level_none])
+        self.state.register("user_permissions_tags", ["user_settings", KeyQueryFactories.dynamic_key, "permissions", "tags"], [{}, {}, Defaults.permissions, []])
