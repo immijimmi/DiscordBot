@@ -1,3 +1,6 @@
+import sys
+import os
+
 from ...constants import Methods, Permissions
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats
@@ -9,6 +12,12 @@ class Meta(HandlerPlugin):
         self.event_methods["process_private_message"] += [self._reboot, self._help_private]
 
     def _reboot(self, message, handler_response=None):
+        async def update_and_restart():
+            if sys.platform == "linux":
+                os.system("sudo git pull\nsudo reboot")
+            else:
+                pass  # Does not support all platforms currently
+
         command = "!reboot"
 
         if Methods.sanitise_message(message.content).lower() == command:
@@ -16,6 +25,8 @@ class Meta(HandlerPlugin):
 
             if author_permissions_level >= Permissions.level_admin:
                 handler_response.add("Rebooting...")
+
+                self.handler.add_callback(update_and_restart, to_end=True)
 
     def _help_private(self, message, handler_response=None):
         def build_command_list(commands, permissions_level=Permissions.level_none):
