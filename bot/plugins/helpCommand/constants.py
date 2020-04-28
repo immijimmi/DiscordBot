@@ -1,3 +1,5 @@
+from ...constants import Permissions
+
 class SymbolLookup:
     visibility = {"public": ":unlock:", "private": ":lock:", "both": ":arrows_clockwise:"}
 
@@ -5,7 +7,8 @@ class MessageFormats:
     _command_template = {
         "": {
             "usage": [{
-                "visibility": SymbolLookup.visibility,
+                "permissions_level": Permissions.level_none,
+                "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
                 "description": ""
             }],
@@ -16,6 +19,7 @@ class MessageFormats:
     commands = {
         "!help": {
             "usage": [{
+                "permissions_level": Permissions.level_none,
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
                 "description": "provides a list of commands"
@@ -24,6 +28,7 @@ class MessageFormats:
         },
         "!watchlist": {
             "usage": [{
+                "permissions_level": Permissions.level_none,
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
                 "description": "displays the users that are in your watchlist"
@@ -31,6 +36,7 @@ class MessageFormats:
             "children": {
                 "!watchlist add": {
                     "usage": [{
+                        "permissions_level": Permissions.level_none,
                         "visibility": SymbolLookup.visibility["private"],
                         "arguments": ["username#ID or Discord ID"],
                         "description": "adds the specified user to your watchlist"
@@ -39,6 +45,7 @@ class MessageFormats:
                 },
                 "!watchlist remove": {
                     "usage": [{
+                        "permissions_level": Permissions.level_none,
                         "visibility": SymbolLookup.visibility["private"],
                         "arguments": ["username#ID or Discord ID"],
                         "description": "adds the specified user to your watchlist"
