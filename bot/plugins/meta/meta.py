@@ -2,11 +2,20 @@ from ...constants import Methods, Permissions
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats
 
-class HelpCommand(HandlerPlugin):
+class Meta(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self.event_methods["process_private_message"] += [self._help_private]
+        self.event_methods["process_private_message"] += [self._reboot, self._help_private]
+
+    def _reboot(self, message, handler_response=None):
+        command = "!reboot"
+
+        if Methods.sanitise_message(message.content).lower() == command:
+            author_permissions_level = self.handler.state.registered_get("user_permissions_level", [str(message.author.id)])
+
+            if author_permissions_level >= Permissions.level_admin:
+                handler_response.add("Rebooting...")
 
     def _help_private(self, message, handler_response=None):
         def build_command_list(commands, permissions_level=Permissions.level_none):

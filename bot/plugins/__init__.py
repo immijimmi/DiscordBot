@@ -1,2 +1,2 @@
 from bot.plugins.watchlist import Watchlist
-from bot.plugins.helpCommand import HelpCommand
+from bot.plugins.meta import Meta
