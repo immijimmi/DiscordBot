@@ -1,7 +1,5 @@
 from discord.state import Status
 
-from functools import partial
-
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...constants import KeyQueryFactories, Defaults, Methods, MessageFormats as HandlerMessageFormats
@@ -12,11 +10,8 @@ class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._watchlist_alerts = {}
-
         self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alert]
         self.event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
-        self.event_methods["user_away"] += [self._watchlist_remove_alert]
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
@@ -43,9 +38,6 @@ class Watchlist(HandlerPlugin):
                     handler_response.add(message)
 
     def _watchlist_alert(self, before, after, handler_response=None):
-        def track_alert_message(alert_key, discord_message):
-            self._watchlist_alerts[alert_key] = self._watchlist_alerts.get(alert_key, []) + [discord_message]
-
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
 
         responses = []
@@ -57,7 +49,7 @@ class Watchlist(HandlerPlugin):
                 watcher = self.handler.get_member(int(watcher_id_string))
                 setting_enabled = self.handler.state.registered_get("user_watchlist_alert_enabled", [watcher_id_string])
 
-                if watcher and setting_enabled and (watcher.status == Status.online):
+                if watcher and (watcher.status == Status.online) and setting_enabled:
                     new_timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [watcher_id_string])
                     alert_key = EventKeys.watchlist_alerts.format(watcher.id, after.id)
                     timeout_triggered = self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
@@ -65,34 +57,12 @@ class Watchlist(HandlerPlugin):
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
                         response.add(MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher)))
-                        response.add_callback(partial(track_alert_message, alert_key))
                     else:
                         response=None
 
                     responses.append(response)
 
         return responses
-
-    def _watchlist_remove_alert(self, before, after, handler_response=None):
-        async def delete_alert_messages(alert_key):
-            alert_messages = self._watchlist_alerts.get(alert_key, [])
-            self._watchlist_alerts[alert_key] = []
-
-            for discord_message in alert_messages:
-                await discord_message.delete()
-
-        all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
-
-        for watcher_id_string in all_saved_users:
-            watcher_watchlist = self.handler.state.registered_get("user_watchlist", [watcher_id_string])
-
-            if after.id in watcher_watchlist:
-                watcher = self.handler.get_member(int(watcher_id_string))
-
-                if watcher:
-                    alert_key = EventKeys.watchlist_alerts.format(watcher.id, after.id)
-                    
-                    self.handler.add_callback(partial(delete_alert_messages, alert_key))
 
     def _watchlist(self, message, handler_response=None):
         command = "!watchlist"
