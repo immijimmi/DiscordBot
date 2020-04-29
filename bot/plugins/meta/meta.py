@@ -9,7 +9,7 @@ class Meta(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self.event_methods["process_private_message"] += [self._reboot, self._help_private]
+        self._event_methods["process_private_message"] += [self._reboot, self._help_private]
 
     def _reboot(self, message, handler_response=None):
         async def update_and_restart():

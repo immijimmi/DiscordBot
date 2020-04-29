@@ -4,7 +4,7 @@ class HandlerPlugin(abc.ABC):
     def __init__(self, handler):
         self.handler = handler
 
-        self.event_methods = {
+        self._event_methods = {
             "on_ready": [],
             "process_private_message": [],
             "process_public_message": [],
@@ -17,7 +17,7 @@ class HandlerPlugin(abc.ABC):
     def on_ready(self, handler_response=None):
         responses = []
 
-        for method in self.event_methods["on_ready"]:
+        for method in self._event_methods["on_ready"]:
             method_responses = method(handler_response=handler_response)
 
             responses += method_responses if method_responses else []
@@ -27,7 +27,7 @@ class HandlerPlugin(abc.ABC):
     def process_private_message(self, message, handler_response=None):
         responses = []
 
-        for method in self.event_methods["process_private_message"]:
+        for method in self._event_methods["process_private_message"]:
             method_responses = method(message, handler_response=handler_response)
 
             responses += method_responses if method_responses else []
@@ -37,7 +37,7 @@ class HandlerPlugin(abc.ABC):
     def process_public_message(self, message, handler_response=None):
         responses = []
 
-        for method in self.event_methods["process_public_message"]:
+        for method in self._event_methods["process_public_message"]:
             method_responses = method(message, handler_response=handler_response)
 
             responses += method_responses if method_responses else []
@@ -47,7 +47,7 @@ class HandlerPlugin(abc.ABC):
     def user_online(self, before, after, handler_response=None):
         responses = []
 
-        for method in self.event_methods["user_online"]:
+        for method in self._event_methods["user_online"]:
             method_responses = method(before, after, handler_response=handler_response)
 
             responses += method_responses if method_responses else []
@@ -57,7 +57,7 @@ class HandlerPlugin(abc.ABC):
     def user_away(self, before, after, handler_response=None):
         responses = []
 
-        for method in self.event_methods["user_away"]:
+        for method in self._event_methods["user_away"]:
             method_responses = method(before, after, handler_response=handler_response)
 
             responses += method_responses if method_responses else []

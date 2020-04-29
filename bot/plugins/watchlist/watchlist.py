@@ -10,32 +10,40 @@ class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self.event_methods["user_online"] += [self._welcome_message, self._watchlist_alert]
-        self.event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
+        self._event_methods["user_online"] += [self._welcome_message, self._watchlist_alert]
+        self._event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
+
+    def _register_paths(self):
+        self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
+        self.handler.state.register(
+            "user_watchlist_alert_timeout_duration",
+            ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "timeout_duration"],
+            [{}, {}, {}, {}, Defaults.timeout_duration]
+            )
+        self.handler.state.register(
+            "user_watchlist_alert_enabled",
+            ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "enabled"],
+            [{}, {}, {}, {}, True]
+            )
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
-            user_watchlist = self.handler.state.registered_get("user_watchlist", [str(after.id)])
+            watchlist_statuses = self.__user_watchlist_statuses(after.id)
+            
+            if watchlist_statuses:
+                handler_response.add(MessageFormats.watchlist_title_private + "\n" + watchlist_statuses)
 
-            if user_watchlist:
-                message = MessageFormats.watchlist_title + "\n"
+    def _watchlist(self, message, handler_response=None):
+        command = "!watchlist"
 
-                target_statuses = {}
+        if handler_response is not None:
+            if Methods.sanitise_message(message.content).lower() == command:
+                watchlist_statuses = self.__user_watchlist_statuses(message.author.id)
 
-                for target_id in user_watchlist:
-                    target = self.handler.get_member(target_id)
-
-                    if target:
-                        target_name = self.handler.get_member_name(target, requester=after)
-                        target_status_message = SymbolLookup.status[target.status] + " " + target_name + "\n"
-                        
-                        target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
-
-                if target_statuses:  # If there is at least one recognised user in the watchlist
-                    for status in MessageFormats.status_order:
-                        message += "".join(target_statuses.get(status, []))
-
-                    handler_response.add(message)
+                if watchlist_statuses:
+                    handler_response.add(MessageFormats.watchlist_title_private + "\n" + watchlist_statuses)
+                else:
+                    handler_response.add("Your watchlist is empty.")
 
     def _watchlist_alert(self, before, after, handler_response=None):
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
@@ -63,28 +71,6 @@ class Watchlist(HandlerPlugin):
                     responses.append(response)
 
         return responses
-
-    def _watchlist(self, message, handler_response=None):
-        command = "!watchlist"
-
-        if handler_response is not None:
-            if Methods.sanitise_message(message.content).lower() == command:
-                watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
-                watchlist_names = []
-
-                for target_id in watchlist:
-                    target = self.handler.get_member(target_id)
-                    target_name = self.handler.get_member_name(target, requester=message.author) if target else str(target_id)
-                    watchlist_names.append(target_name)
-
-                if watchlist_names:
-                    message = MessageFormats.watchlist_title + "\n"
-                    message += "\n".join(watchlist_names)
-
-                    handler_response.add(message)
-
-                else:
-                    handler_response.add("Your watchlist is empty.")
 
     def _watchlist_add(self, message, handler_response=None):
         command = "!watchlist add "
@@ -140,15 +126,24 @@ class Watchlist(HandlerPlugin):
                 else:
                     handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
-    def _register_paths(self):
-        self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
-        self.handler.state.register(
-            "user_watchlist_alert_timeout_duration",
-            ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "timeout_duration"],
-            [{}, {}, {}, {}, Defaults.timeout_duration]
-            )
-        self.handler.state.register(
-            "user_watchlist_alert_enabled",
-            ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "enabled"],
-            [{}, {}, {}, {}, True]
-            )
+    def __user_watchlist_statuses(self, user_id):
+        watchlist = self.handler.state.registered_get("user_watchlist", [str(user_id)])
+        result = ""
+
+        if watchlist:
+            target_statuses = {}
+
+            for target_id in watchlist:
+                target = self.handler.get_member(target_id)
+
+                if target:
+                    target_name = self.handler.get_member_name(target, requester=after)
+                    target_status_message = SymbolLookup.status[target.status] + " " + target_name
+                    
+                    target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
+
+            if target_statuses:  # If there is at least one recognised user in the watchlist
+                for status in MessageFormats.status_order:
+                    result += "\n".join(target_statuses.get(status, [])) + "\n"
+
+                return result
