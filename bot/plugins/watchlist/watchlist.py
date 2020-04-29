@@ -28,7 +28,7 @@ class Watchlist(HandlerPlugin):
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
-            watchlist_statuses = self.__user_watchlist_statuses(after.id)
+            watchlist_statuses = self.__user_watchlist_statuses(after)
             
             if watchlist_statuses:
                 handler_response.add(MessageFormats.watchlist_title_private + "\n" + watchlist_statuses)
@@ -38,7 +38,7 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.sanitise_message(message.content).lower() == command:
-                watchlist_statuses = self.__user_watchlist_statuses(message.author.id)
+                watchlist_statuses = self.__user_watchlist_statuses(message.author)
 
                 if watchlist_statuses:
                     handler_response.add(MessageFormats.watchlist_title_private + "\n" + watchlist_statuses)
@@ -126,8 +126,8 @@ class Watchlist(HandlerPlugin):
                 else:
                     handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
-    def __user_watchlist_statuses(self, user_id):
-        watchlist = self.handler.state.registered_get("user_watchlist", [str(user_id)])
+    def __user_watchlist_statuses(self, user):
+        watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
         result = ""
 
         if watchlist:
@@ -137,7 +137,7 @@ class Watchlist(HandlerPlugin):
                 target = self.handler.get_member(target_id)
 
                 if target:
-                    target_name = self.handler.get_member_name(target, requester=after)
+                    target_name = self.handler.get_member_name(target, requester=user)
                     target_status_message = SymbolLookup.status[target.status] + " " + target_name
                     
                     target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
