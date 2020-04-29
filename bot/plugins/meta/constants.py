@@ -53,5 +53,14 @@ class MessageFormats:
                     "children": {}
                 }
             }
+        },
+        "!reboot": {
+            "usage": [{
+                "permissions_level": Permissions.level_admin,
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": [],
+                "description": "updates the code base and reboots the machine the bot is running on"
+            }],
+            "children": {}
         }
     }
