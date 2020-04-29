@@ -82,7 +82,26 @@ class Handler():
 
     # Event method
     async def process_public_message(self, message):
-        pass  ##### TODO
+        timeout_triggered = self.try_trigger_timeout("process_public_message|{0}|{1}".format(message.author.id, message.content), Defaults.timeout_duration)
+
+        if timeout_triggered:
+            response = MessageBuilder(recipients=[message.channel])
+        else:
+            response = None
+
+        responses = [response]
+
+        for plugin in self.plugins:
+            plugin_responses = plugin.process_public_message(message, handler_response=response)
+
+            responses += plugin_responses if plugin_responses else []
+
+        # If none of the plugins could process the message and return a response
+        if not responses[0] and type(responses[0]) is MessageBuilder:
+            pass
+
+        await self._send_responses(responses)
+        await self._run_callbacks()
 
     #Event method
     async def user_online(self, before, after):
