@@ -23,3 +23,26 @@ class Methods:
     def clean(text):
         """Removes surrounding whitespace and any '\n's. Use to simplify dynamic inputs and outputs (e.g. usernames, command arguments)"""
         return text.strip().replace("\n", "")
+
+    @staticmethod
+    def timeout_duration_string(seconds):
+        if not seconds:
+            return "{0} seconds".format(seconds)
+
+        minutes = int(seconds/60)
+        seconds -= minutes*60
+
+        hours = int(minutes/60)
+        minutes -= hours*60
+
+        days = int(hours/24)
+        hours -= days*24
+
+        segment_lookup = {"days": days, "hours": hours, "minutes": minutes, "seconds": seconds}
+        segments = [
+            "{0} {1}".format(segment_lookup[segment_key], segment_key)
+            for segment_key in ("days", "hours", "minutes", "seconds")
+            if segment_lookup[segment_key] > 0
+            ]
+
+        return ", ".join(segments)

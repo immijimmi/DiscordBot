@@ -41,9 +41,19 @@ class Watchlist(HandlerPlugin):
                 watchlist_statuses = self.__user_watchlist_status_strings(message.author)
 
                 if watchlist_statuses:
-                    handler_response.add(MessageFormats.watchlist_title_private + "\n" + "\n".join(watchlist_statuses))
+                    handler_response.add(MessageFormats.watchlist_title_private + "\n" + "\n".join(watchlist_statuses) + "\n")
                 else:
-                    handler_response.add("Your watchlist is empty.")
+                    handler_response.add("Your watchlist is empty." + "\n")
+
+                settings_string = "**Watchlist Settings:**" + "\n"
+
+                watchlist_status = "enabled" if self.handler.state.registered_get("user_watchlist_alert_enabled", [str(message.author.id)]) else "disabled"
+                settings_string += "status: " + "`" + watchlist_status + "`" + "\n"
+
+                timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [str(message.author.id)])
+                settings_string += "timeout duration: " + "`" + Methods.timeout_duration_string(timeout_duration) + "`"
+
+                handler_response.add(settings_string)
 
     def _watchlist_alert(self, before, after, handler_response=None):
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
