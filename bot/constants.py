@@ -20,5 +20,6 @@ class MessageFormats:
 
 class Methods:
     @staticmethod
-    def sanitise_message(message):
-        return message.strip().replace("\n", "")
+    def clean(text):
+        """Removes surrounding whitespace and any '\n's. Use to simplify dynamic inputs and outputs (e.g. usernames, command arguments)"""
+        return text.strip().replace("\n", "")

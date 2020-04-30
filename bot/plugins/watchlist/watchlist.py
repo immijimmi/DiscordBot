@@ -28,20 +28,20 @@ class Watchlist(HandlerPlugin):
 
     def _welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
-            watchlist_statuses = self.__user_watchlist_statuses(after)
+            watchlist_statuses = self.__user_watchlist_status_strings(after)
             
             if watchlist_statuses:
-                handler_response.add(MessageFormats.watchlist_title_private + "\n" + watchlist_statuses)
+                handler_response.add(MessageFormats.watchlist_title_private + "\n" + "\n".join(watchlist_statuses))
 
     def _watchlist(self, message, handler_response=None):
         command = "!watchlist"
 
         if handler_response is not None:
-            if Methods.sanitise_message(message.content).lower() == command:
-                watchlist_statuses = self.__user_watchlist_statuses(message.author)
+            if Methods.clean(message.content).lower() == command:
+                watchlist_statuses = self.__user_watchlist_status_strings(message.author)
 
                 if watchlist_statuses:
-                    handler_response.add(MessageFormats.watchlist_title_private + "\n" + watchlist_statuses)
+                    handler_response.add(MessageFormats.watchlist_title_private + "\n" + "\n".join(watchlist_statuses))
                 else:
                     handler_response.add("Your watchlist is empty.")
 
@@ -64,7 +64,11 @@ class Watchlist(HandlerPlugin):
 
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
-                        response.add(MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher)))
+                        response.add(
+                            MessageFormats.watchlist_user_online.format(
+                                Methods.clean(self.handler.get_member_name(after, watcher))
+                                )
+                            )
                     else:
                         response=None
 
@@ -77,7 +81,7 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                target_identifier = Methods.sanitise_message(message.content[len(command):])
+                target_identifier = Methods.clean(message.content[len(command):])
                 target = self.handler.get_member(target_identifier, requester=message.author)
 
                 if target:
@@ -85,12 +89,12 @@ class Watchlist(HandlerPlugin):
                     watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
                     if target.id in watchlist:
-                        handler_response.add("{0} is already in your watchlist.".format(target_name))
+                        handler_response.add("{0} is already in your watchlist.".format(Methods.clean(target_name)))
 
                     else:
                         self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
 
-                        handler_response.add("{0} has been added to your watchlist.".format(target_name))
+                        handler_response.add("{0} has been added to your watchlist.".format(Methods.clean(target_name)))
 
                 else:
                     handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
@@ -100,7 +104,7 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                target_identifier = Methods.sanitise_message(message.content[len(command):])
+                target_identifier = Methods.clean(message.content[len(command):])
 
                 target = self.handler.get_member(target_identifier, requester=message.author)
                 watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
@@ -111,24 +115,24 @@ class Watchlist(HandlerPlugin):
                     if target.id in watchlist:
                         self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
 
-                        handler_response.add("{0} has been removed from your watchlist.".format(target_name))
+                        handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_name)))
 
                     else:
-                        handler_response.add("{0} is not in your watchlist.".format(target_name))
+                        handler_response.add("{0} is not in your watchlist.".format(Methods.clean(target_name)))
 
                 elif target_identifier in [str(target_id) for target_id in watchlist]:
                     target_id = int(target_identifier)
 
                     self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
 
-                    handler_response.add("{0} has been removed from your watchlist.".format(target_identifier))
+                    handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_identifier)))
 
                 else:
                     handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
-    def __user_watchlist_statuses(self, user):
+    def __user_watchlist_status_strings(self, user):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
-        result = ""
+        result = []
 
         if watchlist:
             target_statuses = {}
@@ -138,12 +142,12 @@ class Watchlist(HandlerPlugin):
 
                 if target:
                     target_name = self.handler.get_member_name(target, requester=user)
-                    target_status_message = SymbolLookup.status[target.status] + " " + target_name
+                    target_status_message = SymbolLookup.status[target.status] + " " + Methods.clean(target_name)
                     
                     target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
 
             if target_statuses:  # If there is at least one recognised user in the watchlist
                 for status in MessageFormats.status_order:
-                    result += "\n".join(target_statuses.get(status, [])) + "\n"
+                    result += target_statuses.get(status, [])
 
                 return result

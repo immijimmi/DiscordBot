@@ -22,7 +22,7 @@ class Meta(HandlerPlugin):
 
         command = "!reboot"
 
-        if Methods.sanitise_message(message.content).lower() == command:
+        if Methods.clean(message.content).lower() == command:
             author_permissions_level = self.handler.state.registered_get("user_permissions_level", [str(message.author.id)])
 
             if author_permissions_level >= Permissions.level_admin:
@@ -53,7 +53,7 @@ class Meta(HandlerPlugin):
         command = "!help"
 
         if handler_response is not None:
-            if Methods.sanitise_message(message.content).lower() == command:
+            if Methods.clean(message.content).lower() == command:
                 author_permissions_level = self.handler.state.registered_get("user_permissions_level", [str(message.author.id)])
 
                 handler_response.title = "**Command List:**" + "\n"
