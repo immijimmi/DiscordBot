@@ -156,6 +156,11 @@ class Watchlist(HandlerPlugin):
                     
                     target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
 
+                    if target.status == Status.online:  # Trigger online alert timeouts for the recipient, for any users that this message will show as online
+                        new_timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [str(user.id)])
+                        alert_key = EventKeys.watchlist_alerts.format(user.id, target.id)
+                        self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
+
             if target_statuses:  # If there is at least one recognised user in the watchlist
                 for status in MessageFormats.status_order:
                     result += target_statuses.get(status, [])
