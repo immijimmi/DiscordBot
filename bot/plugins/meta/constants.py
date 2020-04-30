@@ -31,7 +31,7 @@ class MessageFormats:
                 "permissions_level": Permissions.level_none,
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
-                "description": "displays the users that are in your watchlist"
+                "description": "displays the statuses of users in your watchlist, and your watchlist settings"
             }],
             "children": {
                 "!watchlist add": {
@@ -48,7 +48,7 @@ class MessageFormats:
                         "permissions_level": Permissions.level_none,
                         "visibility": SymbolLookup.visibility["private"],
                         "arguments": ["username#ID or Discord ID"],
-                        "description": "adds the specified user to your watchlist"
+                        "description": "removes the specified user from your watchlist"
                     }],
                     "children": {}
                 }
