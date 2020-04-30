@@ -59,7 +59,7 @@ class Meta(HandlerPlugin):
                 handler_response.title = "**Command List:**" + "\n"
                 handler_response.title += "*Key: "
                 handler_response.title += ":lock: `used by messaging the bot` "
-                handler_response.title += ":unlock: `used by messaging in the server` "
+                handler_response.title += ":unlock: `used in server and group channels` "
                 handler_response.title += ":arrows_clockwise: `can be used either way`*" + "\n"
 
                 handler_response.add("\n".join(build_command_list(MessageFormats.commands, permissions_level=author_permissions_level)))
