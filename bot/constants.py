@@ -1,10 +1,7 @@
 from managedState.registrar import KeyQueryFactory
 
 from .classes.timeoutDuration import TimeoutDuration
-
-class Permissions:
-    level_none = 0
-    level_admin = 1
+from .classes.permissions import Permissions
 
 class KeyQueryFactories:
     dynamic_key = KeyQueryFactory(lambda sub_state, user_id: user_id)
@@ -14,7 +11,7 @@ class Defaults:
 
     timeout_duration = TimeoutDuration(1)
 
-    permissions = {"level": Permissions.level_none, "tags": []}
+    permissions = Permissions(Permissions.level_none, [])
 
 class MessageFormats:
     welcome_header = "**Welcome back!**"

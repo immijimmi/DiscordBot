@@ -1,7 +1,8 @@
 import sys
 import os
 
-from ...constants import Methods, Permissions
+from ...constants import Methods
+from ...classes.permissions import Permissions
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats
 
@@ -23,29 +24,32 @@ class Meta(HandlerPlugin):
         command = "!reboot"
 
         if Methods.clean(message.content).lower() == command:
-            author_permissions_level = self.handler.state.registered_get("user_permissions_level", [str(message.author.id)])
+            required_permissions_options = [Permissions(Permissions.level_admin, [])]
+            user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
 
-            if author_permissions_level >= Permissions.level_admin:
+            if user_permissions.is_permitted(*required_permissions_options):
                 handler_response.add("Rebooting...")
 
                 self.handler.add_callback(update_and_restart, to_end=True)
 
     def _help_private(self, message, handler_response=None):
-        def build_command_list(commands, permissions_level=Permissions.level_none):
+        def build_command_list(commands, user_permissions):
             result = []
 
-            for command in commands:
-                for usage in commands[command]["usage"]:
-                    permissions_requirement = usage["permissions_level"]
-                    if permissions_level < permissions_requirement:
+            for command_string in commands:
+                command = commands[command_string]
+
+                for usage in command["usage"]:
+                    required_permissions_options = usage["permissions"]
+                    if not user_permissions.is_permitted(*required_permissions_options):
                         continue
 
                     arguments_string = " ".join(["`{0}`".format(argument) for argument in usage["arguments"]])
-                    result_string = "**- {1}** {2} {0} *{3}*".format(usage["visibility"], command, arguments_string, usage["description"])
+                    result_string = "**- {1}** {2} {0} *{3}*".format(usage["visibility"], command_string, arguments_string, usage["description"])
 
                     result.append(result_string)
 
-                for child_result_string in build_command_list(commands[command]["children"]):
+                for child_result_string in build_command_list(command["children"], user_permissions):
                     result.append("       " + child_result_string)
 
             return result
@@ -54,12 +58,14 @@ class Meta(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                author_permissions_level = self.handler.state.registered_get("user_permissions_level", [str(message.author.id)])
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
 
-                handler_response.title = "**Command List:**" + "\n"
-                handler_response.title += "*Key: "
-                handler_response.title += ":lock: `used by messaging the bot` "
-                handler_response.title += ":unlock: `used in server and group channels` "
-                handler_response.title += ":arrows_clockwise: `can be used either way`*" + "\n"
+                handler_response.title = "**Command List:**"
 
-                handler_response.add("\n".join(build_command_list(MessageFormats.commands, permissions_level=author_permissions_level)))
+                key_string = "*Key: "
+                key_string += ":lock: `used by messaging the bot` "
+                key_string += ":unlock: `used in server and group channels` "
+                key_string += ":arrows_clockwise: `can be used either way`*" + "\n"
+
+                handler_response.add(key_string)
+                handler_response.add("\n".join(build_command_list(MessageFormats.commands, user_permissions)))
