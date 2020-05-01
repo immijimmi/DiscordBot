@@ -9,6 +9,7 @@ from collections import deque
 from .constants import KeyQueryFactories, Defaults, MessageFormats, Permissions
 from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
+from .classes.timeoutDuration import TimeoutDuration
 
 class Handler():
     def __init__(self, client, plugins=[]):
@@ -34,16 +35,15 @@ class Handler():
         timeout = self._timeouts.get(timeout_key, None)
 
         is_active_timeout = timeout and not timeout.is_expired()
+        if is_active_timeout:
+            return False
 
-        if not is_active_timeout:
-            if timeout:
-                timeout.reset()
-            else:
-                self._timeouts[timeout_key] = EventTimeout(timeout_key, duration_seconds=new_timeout_duration)
+        if timeout:
+            timeout.reset()
+        else:
+            self._timeouts[timeout_key] = EventTimeout(timeout_key, new_timeout_duration)
 
-            return True
-
-        return False
+        return True
 
     #Event method
     async def on_ready(self):
@@ -109,7 +109,7 @@ class Handler():
 
         response = None
         if setting_enabled:
-            new_timeout_duration = self.state.registered_get("user_welcome_timeout_duration", [str(after.id)])
+            new_timeout_duration = TimeoutDuration(self.state.registered_get("user_welcome_timeout_seconds", [str(after.id)]))
             timeout_triggered = self.try_trigger_timeout("user_welcome|{0}".format(after.id), new_timeout_duration)
             
             if timeout_triggered:
@@ -192,7 +192,7 @@ class Handler():
     def _register_paths(self):
         self.state.register("all_users_settings", ["user_settings"], [{}])
         self.state.register("user_nicknames", ["user_settings", KeyQueryFactories.dynamic_key, "nicknames"], [{}, {}, {}])
-        self.state.register("user_welcome_timeout_duration", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration])
+        self.state.register("user_welcome_timeout_seconds", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration.seconds])
         self.state.register("user_welcome_enabled", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "enabled"], [{}, {}, {}, True])
 
         self.state.register("user_permissions_level", ["user_settings", KeyQueryFactories.dynamic_key, "permissions", "level"], [{}, {}, Defaults.permissions, Permissions.level_none])

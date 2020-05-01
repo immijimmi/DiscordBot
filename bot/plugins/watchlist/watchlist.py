@@ -2,6 +2,7 @@ from discord.state import Status
 
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
+from ...classes.timeoutDuration import TimeoutDuration
 from ...constants import KeyQueryFactories, Defaults, Methods, MessageFormats as HandlerMessageFormats
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats, SymbolLookup, EventKeys
@@ -16,9 +17,9 @@ class Watchlist(HandlerPlugin):
     def _register_paths(self):
         self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
         self.handler.state.register(
-            "user_watchlist_alert_timeout_duration",
+            "user_watchlist_alert_timeout_seconds",
             ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "alerts", "timeout_duration"],
-            [{}, {}, {}, {}, Defaults.timeout_duration]
+            [{}, {}, {}, {}, Defaults.timeout_duration.seconds]
             )
         self.handler.state.register(
             "user_watchlist_alert_enabled",
@@ -50,8 +51,8 @@ class Watchlist(HandlerPlugin):
                 watchlist_status = "enabled" if self.handler.state.registered_get("user_watchlist_alert_enabled", [str(message.author.id)]) else "disabled"
                 settings_string += "status: " + "`" + watchlist_status + "`" + "\n"
 
-                timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [str(message.author.id)])
-                settings_string += "timeout duration: " + "`" + Methods.timeout_duration_string(timeout_duration) + "`"
+                timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(message.author.id)]))
+                settings_string += "timeout duration: " + "`" + timeout_duration.to_user_string() + "`"
 
                 handler_response.add(settings_string)
 
@@ -68,7 +69,7 @@ class Watchlist(HandlerPlugin):
                 setting_enabled = self.handler.state.registered_get("user_watchlist_alert_enabled", [watcher_id_string])
 
                 if watcher and (watcher.status == Status.online) and setting_enabled:
-                    new_timeout_duration = self.handler.state.registered_get("user_watchlist_alert_timeout_duration", [watcher_id_string])
+                    new_timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [watcher_id_string]))
                     alert_key = EventKeys.watchlist_alerts.format(watcher.id, after.id)
                     timeout_triggered = self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
