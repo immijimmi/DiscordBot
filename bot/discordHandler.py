@@ -37,13 +37,9 @@ class Handler():
         is_active_timeout = timeout and not timeout.is_expired()
         if is_active_timeout:
             return False
-
-        if timeout:
-            timeout.reset()
         else:
             self._timeouts[timeout_key] = EventTimeout(timeout_key, new_timeout_duration)
-
-        return True
+            return True
 
     #Event method
     async def on_ready(self):

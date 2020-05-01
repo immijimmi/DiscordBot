@@ -12,7 +12,7 @@ class Watchlist(HandlerPlugin):
         super().__init__(handler)
 
         self._event_methods["user_online"] += [self._welcome_message, self._watchlist_alert]
-        self._event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove]
+        self._event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove, self._watchlist_timeout_change]
 
     def _register_paths(self):
         self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
@@ -140,6 +140,23 @@ class Watchlist(HandlerPlugin):
 
                 else:
                     handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
+
+    def _watchlist_timeout_change(self, message, handler_response=None):
+        command = "!watchlist timeout "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                duration_string = Methods.clean(message.content[len(command):])
+
+                try:
+                    timeout_duration = TimeoutDuration.from_user_string(duration_string)
+                except ValueError:
+                    handler_response.add(HandlerMessageFormats.cannot_parse_timeout_string.format(duration_string))
+                    return
+
+                self.handler.state.registered_set(timeout_duration.seconds, "user_watchlist_alert_timeout_seconds", [str(message.author.id)]))
+
+                handler_response.add("Watchlist timeout duration set to {0}.".format(timeout_duration.to_user_string()))
 
     def __user_watchlist_status_strings(self, user):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
