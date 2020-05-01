@@ -3,7 +3,7 @@ import logging
 class Logger:
     def __init__(self, destination_ids=[]):
         logging.basicConfig(
-            filename="log.txt",
+            filename="bot.log",
             level=logging.INFO,
             format="%(asctime)s|%(levelname)s:%(message)s"
             )
