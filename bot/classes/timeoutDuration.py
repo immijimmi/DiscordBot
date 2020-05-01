@@ -38,5 +38,6 @@ class TimeoutDuration:
             return TimeoutDuration(int(string))
 
         # More parsing approaches should be added as necessary
-            
+        
+        raise ValueError("Unable to convert to TimeoutDuration: {0}".format(string))
         
