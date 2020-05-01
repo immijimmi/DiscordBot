@@ -2,13 +2,13 @@ import discord
 from discord import TextChannel, VoiceChannel, DMChannel, GroupChannel
 from discord.state import Status
 
-from .discordHandler import Handler
+from .eventHandler import EventHandler
 
 class Bot(discord.Client):
     def __init__(self, token, plugins=[]):
         super().__init__()
         
-        self.handler = Handler(self, plugins=plugins)
+        self.handler = EventHandler(self, plugins=plugins)
 
         self.run(token)
     
@@ -17,8 +17,6 @@ class Bot(discord.Client):
 
     async def on_message(self, message):
         if message.author == self.user:
-            return
-        if message.channel.id in self.logger.destination_ids:
             return
 
         is_private = isinstance(message.channel, DMChannel)
