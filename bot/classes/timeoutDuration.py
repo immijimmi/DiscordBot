@@ -1,7 +1,9 @@
 class TimeoutDuration:
+    max_seconds = 86400
+
     def __init__(self, seconds):
-        if seconds <= 0:
-            raise ValueError("Timeout duration must be a positive non-zero value. {0} seconds is not valid".format(seconds))
+        if seconds <= 0 or seconds > TimeoutDuration.max_seconds:
+            raise ValueError("Timeout duration must be a value between 1 and {0} seconds. {1} seconds is not valid".format(TimeoutDuration.max_seconds, seconds))
 
         self._seconds = seconds
 
@@ -32,4 +34,9 @@ class TimeoutDuration:
 
     @staticmethod
     def from_user_string(string):
-        pass  ##### TODO
+        if string.isdigit():
+            return TimeoutDuration(int(string))
+
+        # More parsing approaches should be added as necessary
+            
+        
