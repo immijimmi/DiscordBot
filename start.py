@@ -1,15 +1,16 @@
 import logging
 
-from bot import Bot
+from bot import Bot, Logger
 from bot.plugins import Watchlist, Meta
 
 from config import Config
+
+logger = Logger()
 
 try:
     Bot(
         Config.token,
         plugins=[Watchlist, Meta],
-        log_destination_ids=Config.log_destination_ids
         )
 
 except Exception as ex:

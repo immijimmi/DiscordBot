@@ -3,13 +3,11 @@ from discord import TextChannel, VoiceChannel, DMChannel, GroupChannel
 from discord.state import Status
 
 from .discordHandler import Handler
-from .classes.discordLogger import Logger
 
 class Bot(discord.Client):
-    def __init__(self, token, plugins=[], log_destination_ids=[]):
+    def __init__(self, token, plugins=[]):
         super().__init__()
         
-        self.logger = Logger(self, destination_ids=log_destination_ids)
         self.handler = Handler(self, plugins=plugins)
 
         self.run(token)
