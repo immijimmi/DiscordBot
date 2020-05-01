@@ -13,8 +13,6 @@ try:
         )
 
 except Exception as ex:
-    print("An unexpected error has occurred.")
     logging.exception(ex)
 
-input("\n" + "Press Enter to quit: ")
 raise SystemExit
