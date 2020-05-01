@@ -25,7 +25,7 @@ class TimeoutDuration:
 
         segment_lookup = {"days": days, "hours": hours, "minutes": minutes, "seconds": seconds}
         segments = [
-            "{0} {1}".format(segment_lookup[segment_key], segment_key)
+            "{0} {1}{2}".format(segment_lookup[segment_key], segment_key[:-1], "" if segment_lookup[segment_key] == 1 else "s")
             for segment_key in ("days", "hours", "minutes", "seconds")
             if segment_lookup[segment_key] > 0
             ]
