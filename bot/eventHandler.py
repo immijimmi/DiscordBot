@@ -12,7 +12,7 @@ from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
 from .classes.timeoutDuration import TimeoutDuration
 
-class Handler():
+class EventHandler():
     def __init__(self, client, plugins=[]):
         self._timeouts = {}  # Stores cooldowns for specific bot actions
         self._callbacks = deque()  # Stores async callbacks created by plugins
