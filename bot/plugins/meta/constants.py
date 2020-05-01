@@ -51,7 +51,16 @@ class MessageFormats:
                         "description": "removes the specified user from your watchlist"
                     }],
                     "children": {}
-                }
+                },
+                "!watchlist timeout": {
+                    "usage": [{
+                        "permissions_level": Permissions.level_none,
+                        "visibility": SymbolLookup.visibility["private"],
+                        "arguments": ["new timeout duration"],
+                        "description": "sets the duration of timeouts on watchlist alerts to the specified value"
+                    }],
+                    "children": {}
+        }
             }
         },
         "!reboot": {
