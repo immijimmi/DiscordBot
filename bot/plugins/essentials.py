@@ -40,7 +40,7 @@ class Essentials(HandlerPlugin):
                     return
 
                 self.handler.state.registered_set(setting_enabled, "user_welcome_enabled", [str(message.author.id)])
-                handler_response.add("Welcome messages {0}".format("enabled" if setting_enabled else "disabled"))
+                handler_response.add("Welcome messages {0}.".format("enabled" if setting_enabled else "disabled"))
 
     def _welcome_timeout_change(self, message, handler_response=None):
         command = "!welcome timeout "
