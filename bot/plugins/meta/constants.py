@@ -27,12 +27,41 @@ class MessageFormats:
             }],
             "children": {}
         },
+        "!welcome": {
+            "usage": [{
+                "permissions": [Defaults.permissions],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": [],
+                "description": "displays your welcome message settings"
+            }, {
+                "permissions": [Defaults.permissions],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": ["on/off"],
+                "description": "turns welcome messages on or off"
+            }],
+            "children": {
+                "!welcome timeout": {
+                    "usage": [{
+                        "permissions": [Defaults.permissions],
+                        "visibility": SymbolLookup.visibility["private"],
+                        "arguments": ["new timeout duration"],
+                        "description": "sets the duration of timeouts on welcome messages to the specified value"
+                    }],
+                    "children": {}
+                }
+            }
+        },
         "!watchlist": {
             "usage": [{
                 "permissions": [Defaults.permissions],
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
                 "description": "displays the statuses of users in your watchlist, and your watchlist settings"
+            }, {
+                "permissions": [Defaults.permissions],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": ["on/off"],
+                "description": "turns watchlist alerts on or off"
             }],
             "children": {
                 "!watchlist add": {
@@ -61,7 +90,7 @@ class MessageFormats:
                         "description": "sets the duration of timeouts on watchlist alerts to the specified value"
                     }],
                     "children": {}
-        }
+                }
             }
         },
         "!reboot": {
