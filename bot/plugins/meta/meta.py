@@ -10,9 +10,9 @@ class Meta(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["process_private_message"] += [self._reboot, self._help_private]
+        self._event_methods["process_private_message"] += [self._command_reboot_private, self._command_help_private]
 
-    def _reboot(self, message, handler_response=None):
+    def _command_reboot_private(self, message, handler_response=None):
         async def update_and_restart():
             if sys.platform == "linux":
                 os.system("sudo git pull\nsudo reboot")
@@ -32,7 +32,7 @@ class Meta(HandlerPlugin):
 
                 self.handler.add_callback(update_and_restart, to_end=True)
 
-    def _help_private(self, message, handler_response=None):
+    def _command_help_private(self, message, handler_response=None):
         def build_command_list(commands, user_permissions):
             result = []
 
