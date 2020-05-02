@@ -28,13 +28,13 @@ class Essentials(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                toggle_string = Methods.clean(message.content[len(command):]).lower()
+                toggle_string = Methods.clean(message.content[len(command):])
 
-                if toggle_string in MessageFormats.toggle_on_strings:
+                if toggle_string.lower() in MessageFormats.toggle_on_strings:
                     setting_enabled = True
-                elif toggle_string in MessageFormats.toggle_off_strings:
+                elif toggle_string.lower() in MessageFormats.toggle_off_strings:
                     setting_enabled = False
-                elif toggle_string in MessageFormats.toggle_change_strings:
+                elif toggle_string.lower() in MessageFormats.toggle_change_strings:
                     setting_enabled = not self.handler.state.registered_get("user_welcome_enabled", [str(message.author.id)])
                 else:
                     return
