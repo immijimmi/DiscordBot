@@ -6,9 +6,9 @@ class Essentials(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["process_private_message"] += [self._welcome, self._welcome_toggle, self._welcome_timeout_change]
+        self._event_methods["process_private_message"] += [self._private_message_welcome, self._private_message_welcome_toggle, self._private_message_welcome_timeout_change]
 
-    def _welcome(self, message, handler_response=None):
+    def _private_message_welcome(self, message, handler_response=None):
         command = "!welcome"
 
         if handler_response is not None:
@@ -23,7 +23,7 @@ class Essentials(HandlerPlugin):
 
                 handler_response.add(settings_string)
 
-    def _welcome_toggle(self, message, handler_response=None):
+    def _private_message_welcome_toggle(self, message, handler_response=None):
         command = "!welcome "
 
         if handler_response is not None:
@@ -42,7 +42,7 @@ class Essentials(HandlerPlugin):
                 self.handler.state.registered_set(setting_enabled, "user_welcome_enabled", [str(message.author.id)])
                 handler_response.add("Welcome messages {0}.".format("enabled" if setting_enabled else "disabled"))
 
-    def _welcome_timeout_change(self, message, handler_response=None):
+    def _private_message_welcome_timeout_change(self, message, handler_response=None):
         command = "!welcome timeout "
 
         if handler_response is not None:
