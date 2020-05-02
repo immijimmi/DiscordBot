@@ -6,7 +6,7 @@ import json
 import logging
 from collections import deque
 
-from .constants import KeyQueryFactories, Defaults, MessageFormats
+from .constants import KeyQueryFactories, Defaults, MessageFormats, Methods
 from .plugins.essentials import Essentials
 from .classes.permissions import Permissions
 from .classes.messageBuilder import MessageBuilder
@@ -143,7 +143,7 @@ class EventHandler():
             user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
             for nickname_id_string in user_nicknames:
-                if user_nicknames[nickname_id_string].lower().strip() == member_identifier.lower().strip():
+                if Methods.clean(user_nicknames[nickname_id_string]).lower() == Methods.clean(member_identifier).lower():
                     member_identifier = nickname_id_string
                     break
         
@@ -152,7 +152,7 @@ class EventHandler():
                 return member
 
             elif "#" in member_identifier:
-                if "{0}#{1}".format(member.name, member.discriminator).lower().strip() == member_identifier.lower().strip():
+                if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == Methods.clean(member_identifier).lower():
                     return member
 
     def get_member_name(self, member, requester=None):
