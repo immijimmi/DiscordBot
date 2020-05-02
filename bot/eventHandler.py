@@ -6,7 +6,7 @@ import json
 import logging
 from collections import deque
 
-from .constants import KeyQueryFactories, Defaults, MessageFormats, Methods
+from .constants import KeyQueryFactories, Defaults, Methods
 from .plugins.essentials import Essentials
 from .classes.permissions import Permissions
 from .classes.messageBuilder import MessageBuilder
@@ -112,7 +112,7 @@ class EventHandler():
             
             if timeout_triggered:
                 response = MessageBuilder(recipients=[after])
-                response.title = MessageFormats.welcome_header + "\n"
+                response.title = "**Welcome back!**" + "\n"
 
         responses = [response]
 

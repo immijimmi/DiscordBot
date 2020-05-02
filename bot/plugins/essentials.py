@@ -1,12 +1,15 @@
 from ..classes.timeoutDuration import TimeoutDuration
-from ..constants import Methods, MessageFormats
+from ..constants import Methods
+from .constants import MessageFormats
 from .handlerPlugin import HandlerPlugin
 
 class Essentials(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["process_private_message"] += [self._private_message_welcome, self._private_message_welcome_toggle, self._private_message_welcome_timeout_change]
+        self._event_methods["process_private_message"] += [
+            self._private_message_welcome, self._private_message_welcome_toggle, self._private_message_welcome_timeout_change
+            ]
 
     def _private_message_welcome(self, message, handler_response=None):
         command = "!welcome"

@@ -3,7 +3,8 @@ from discord.state import Status
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...classes.timeoutDuration import TimeoutDuration
-from ...constants import KeyQueryFactories, Defaults, Methods, MessageFormats as HandlerMessageFormats
+from ...constants import KeyQueryFactories, Defaults, Methods
+from ..constants import MessageFormats as PluginMessageFormats
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats, SymbolLookup, EventKeys
 
@@ -97,11 +98,11 @@ class Watchlist(HandlerPlugin):
             if message.content[:len(command)].lower() == command:
                 toggle_string = Methods.clean(message.content[len(command):])
 
-                if toggle_string.lower() in HandlerMessageFormats.toggle_on_strings:
+                if toggle_string.lower() in PluginMessageFormats.toggle_on_strings:
                     setting_enabled = True
-                elif toggle_string.lower() in HandlerMessageFormats.toggle_off_strings:
+                elif toggle_string.lower() in PluginMessageFormats.toggle_off_strings:
                     setting_enabled = False
-                elif toggle_string.lower() in HandlerMessageFormats.toggle_change_strings:
+                elif toggle_string.lower() in PluginMessageFormats.toggle_change_strings:
                     setting_enabled = not self.handler.state.registered_get("user_watchlist_alerts_enabled", [str(message.author.id)])
                 else:
                     return
@@ -119,7 +120,7 @@ class Watchlist(HandlerPlugin):
                 try:
                     timeout_duration = TimeoutDuration.from_user_string(duration_string)
                 except ValueError:
-                    handler_response.add(HandlerMessageFormats.cannot_parse_timeout_string.format(duration_string))
+                    handler_response.add(PluginMessageFormats.cannot_parse_timeout_string.format(duration_string))
                     return
 
                 self.handler.state.registered_set(timeout_duration.seconds, "user_watchlist_alert_timeout_seconds", [str(message.author.id)])
@@ -145,7 +146,7 @@ class Watchlist(HandlerPlugin):
                         handler_response.add("{0} has been added to your watchlist.".format(Methods.clean(target_name)))
 
                 else:
-                    handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
+                    handler_response.add(PluginMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
     def _private_message_watchlist_remove(self, message, handler_response=None):
         command = "!watchlist remove "
@@ -174,7 +175,7 @@ class Watchlist(HandlerPlugin):
                     handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_identifier)))
 
                 else:
-                    handler_response.add(HandlerMessageFormats.cannot_find_user_identifier.format(target_identifier))
+                    handler_response.add(PluginMessageFormats.cannot_find_user_identifier.format(target_identifier))
 
     def __user_watchlist_status_strings(self, user):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
