@@ -31,16 +31,16 @@ class Essentials(HandlerPlugin):
                 toggle_string = Methods.clean(message.content[len(command):]).lower()
 
                 if toggle_string in MessageFormats.toggle_on_strings:
-                    enabled_setting = True
+                    setting_enabled = True
                 elif toggle_string in MessageFormats.toggle_off_strings:
-                    enabled_setting = False
+                    setting_enabled = False
                 elif toggle_string in MessageFormats.toggle_change_strings:
-                    enabled_setting = not self.handler.state.registered_get("user_welcome_enabled", [str(message.author.id)])
+                    setting_enabled = not self.handler.state.registered_get("user_welcome_enabled", [str(message.author.id)])
                 else:
                     return
 
-                self.handler.state.registered_set(enabled_setting, "user_welcome_enabled", [str(message.author.id)])
-                handler_response.add("Welcome messages {0}".format("enabled" if enabled_setting else "disabled"))
+                self.handler.state.registered_set(setting_enabled, "user_welcome_enabled", [str(message.author.id)])
+                handler_response.add("Welcome messages {0}".format("enabled" if setting_enabled else "disabled"))
 
     def _welcome_timeout_change(self, message, handler_response=None):
         command = "!welcome timeout "
