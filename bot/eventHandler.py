@@ -148,7 +148,7 @@ class EventHandler():
                     break
         
         for member in self.client.get_all_members():  # Returns None if the member cannot be found
-            if str(member.id) == member_identifier:
+            if str(member.id) == Methods.clean(member_identifier):
                 return member
 
             elif "#" in member_identifier:
