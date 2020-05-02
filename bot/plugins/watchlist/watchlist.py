@@ -11,7 +11,7 @@ class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["user_online"] += [self._welcome_message, self._watchlist_alert]
+        self._event_methods["user_online"] += [self._watchlist_welcome_message, self._watchlist_alert]
         self._event_methods["process_private_message"] += [self._watchlist, self._watchlist_add, self._watchlist_remove, self._watchlist_timeout_change]
 
     def _register_paths(self):
@@ -27,7 +27,7 @@ class Watchlist(HandlerPlugin):
             [{}, {}, {}, {}, True]
             )
 
-    def _welcome_message(self, before, after, handler_response=None):
+    def _watchlist_welcome_message(self, before, after, handler_response=None):
         if handler_response is not None:
             watchlist_statuses = self.__user_watchlist_status_strings(after)
             
@@ -104,7 +104,6 @@ class Watchlist(HandlerPlugin):
 
                     else:
                         self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
-
                         handler_response.add("{0} has been added to your watchlist.".format(Methods.clean(target_name)))
 
                 else:
@@ -125,7 +124,6 @@ class Watchlist(HandlerPlugin):
 
                     if target.id in watchlist:
                         self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
-
                         handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_name)))
 
                     else:
@@ -135,7 +133,6 @@ class Watchlist(HandlerPlugin):
                     target_id = int(target_identifier)
 
                     self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
-
                     handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_identifier)))
 
                 else:
@@ -155,7 +152,6 @@ class Watchlist(HandlerPlugin):
                     return
 
                 self.handler.state.registered_set(timeout_duration.seconds, "user_watchlist_alert_timeout_seconds", [str(message.author.id)])
-
                 handler_response.add("Watchlist timeout duration set to {0}.".format(timeout_duration.to_user_string()))
 
     def __user_watchlist_status_strings(self, user):
