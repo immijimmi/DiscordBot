@@ -16,7 +16,7 @@ class Defaults:
 class MessageFormats:
     welcome_header = "**Welcome back!**"
     cannot_find_user_identifier = "Unable to find a user based on the name: `{0}`"
-    cannot_parse_timeout_string = "Unable to get a timeout duration from the provided value: `{0}`\nTimeout durations must be a number of seconds between 1 and " + str(TimeoutDuration.max_seconds) + "."
+    cannot_parse_timeout_string = "Unable to get a timeout duration from the provided value: `{0}`\nTimeout duration must be a number of seconds between 1 and " + str(TimeoutDuration.max_seconds) + "."
 
     toggle_change_strings = ["toggle"]
     toggle_on_strings = ["on", "enable", "enabled"]
