@@ -82,10 +82,10 @@ class Watchlist(HandlerPlugin):
                 settings_string = "**Watchlist Settings:**" + "\n"
 
                 watchlist_status = "enabled" if self.handler.state.registered_get("user_watchlist_alerts_enabled", [str(message.author.id)]) else "disabled"
-                settings_string += "status: " + "`" + watchlist_status + "`" + "\n"
+                settings_string += "status: `{0}`\n".format(watchlist_status)
 
                 timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(message.author.id)]))
-                settings_string += "timeout duration: " + "`" + timeout_duration.to_user_string() + "`"
+                settings_string += "timeout duration: `{0}`".format(timeout_duration.to_user_string())
 
                 handler_response.add(settings_string)
 
