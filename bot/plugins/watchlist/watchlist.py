@@ -58,7 +58,7 @@ class Watchlist(HandlerPlugin):
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
                         response.add(
-                            MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher))
+                            MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, requester=watcher))
                         )
                     else:
                         response=None
