@@ -58,10 +58,8 @@ class Watchlist(HandlerPlugin):
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
                         response.add(
-                            MessageFormats.watchlist_user_online.format(
-                                Methods.clean(self.handler.get_member_name(after, watcher))
-                                )
-                            )
+                            MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, watcher))
+                        )
                     else:
                         response=None
 
@@ -139,11 +137,11 @@ class Watchlist(HandlerPlugin):
                     watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
                     if target.id in watchlist:
-                        handler_response.add("{0} is already in your watchlist.".format(Methods.clean(target_name)))
+                        handler_response.add("{0} is already in your watchlist.".format(target_name))
 
                     else:
                         self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
-                        handler_response.add("{0} has been added to your watchlist.".format(Methods.clean(target_name)))
+                        handler_response.add("{0} has been added to your watchlist.".format(target_name))
 
                 else:
                     handler_response.add(PluginMessageFormats.cannot_find_user_identifier.format(target_identifier))
@@ -163,16 +161,16 @@ class Watchlist(HandlerPlugin):
 
                     if target.id in watchlist:
                         self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
-                        handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_name)))
+                        handler_response.add(MessageFormats.watchlist_user_removed.format(target_name))
 
                     else:
-                        handler_response.add("{0} is not in your watchlist.".format(Methods.clean(target_name)))
+                        handler_response.add("{0} is not in your watchlist.".format(target_name))
 
                 elif target_identifier in [str(target_id) for target_id in watchlist]:
                     target_id = int(target_identifier)
 
                     self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
-                    handler_response.add(MessageFormats.watchlist_user_removed.format(Methods.clean(target_identifier)))
+                    handler_response.add(MessageFormats.watchlist_user_removed.format(target_identifier))
 
                 else:
                     handler_response.add(PluginMessageFormats.cannot_find_user_identifier.format(target_identifier))
@@ -189,7 +187,7 @@ class Watchlist(HandlerPlugin):
 
                 if target:
                     target_name = self.handler.get_member_name(target, requester=user)
-                    target_status_message = SymbolLookup.status[target.status] + " " + Methods.clean(target_name)
+                    target_status_message = SymbolLookup.status[target.status] + " " + target_name
                     
                     target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
 

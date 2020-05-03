@@ -160,9 +160,9 @@ class EventHandler():
             user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
 
             if str(member.id) in user_nicknames:
-                return user_nicknames[str(member.id)]
+                return Methods.clean(user_nicknames[str(member.id)])
 
-        return "{0}#{1}".format(member.name, member.discriminator)
+        return Methods.clean("{0}#{1}".format(member.name, member.discriminator))
 
     async def _run_callbacks(self):
         while self._callbacks:
