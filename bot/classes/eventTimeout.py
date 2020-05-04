@@ -1,16 +1,19 @@
 from datetime import datetime, timedelta
 
-from ..constants import Defaults
+from .timeoutDuration import TimeoutDuration
 
-class EventTimeout:
-    def __init__(self, key, duration_seconds=Defaults.timeout_duration):
-        self.__key = key
-        self.__duration = duration_seconds
+class EventTimeout:  # Single-use timeout objects
+    def __init__(self, key, timeout_duration):
+        if type(timeout_duration) is not TimeoutDuration:
+            raise TypeError(type(timeout_duration))
 
-        self.reset()
+        self._key = key
+        self._duration = timeout_duration
+        self._start = datetime.now()
+
+    @property
+    def start(self):
+        return self._start
 
     def is_expired(self):
-        return (self.__start + timedelta(seconds=self.__duration)) <= datetime.now()
-
-    def reset(self):
-        self.__start = datetime.now()
+        return (self._start + timedelta(seconds=self._duration.seconds)) <= datetime.now()

@@ -1,6 +1,16 @@
+import logging
+
 from bot import Bot
-from bot.plugins.watchlist import Watchlist
+from bot.plugins import Watchlist, Meta
 
 from config import Config
 
-Bot(Config.token, plugins=[Watchlist], log_destination_ids=Config.log_destination_ids)
+logging.basicConfig(**Config.logging)
+
+try:
+    Bot(Config.token, plugins=[Watchlist, Meta])
+
+except Exception as ex:
+    logging.exception(ex)
+
+raise SystemExit

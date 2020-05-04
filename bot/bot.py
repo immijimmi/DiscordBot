@@ -2,15 +2,13 @@ import discord
 from discord import TextChannel, VoiceChannel, DMChannel, GroupChannel
 from discord.state import Status
 
-from .discordHandler import Handler
-from .classes.discordLogger import Logger
+from .eventHandler import EventHandler
 
 class Bot(discord.Client):
-    def __init__(self, token, plugins=[], log_destination_ids=[]):
+    def __init__(self, token, plugins=[]):
         super().__init__()
         
-        self.logger = Logger(self, destination_ids=log_destination_ids)
-        self.handler = Handler(self, plugins=plugins)
+        self.handler = EventHandler(self, plugins=plugins)
 
         self.run(token)
     
@@ -19,8 +17,6 @@ class Bot(discord.Client):
 
     async def on_message(self, message):
         if message.author == self.user:
-            return
-        if message.channel.id in self.logger.destination_ids:
             return
 
         is_private = isinstance(message.channel, DMChannel)
@@ -35,3 +31,6 @@ class Bot(discord.Client):
         
         if before.status != Status.online and after.status == Status.online:
             await self.handler.user_online(before, after)
+
+        elif before.status == Status.online and after.status != Status.online:
+            await self.handler.user_away(before, after)

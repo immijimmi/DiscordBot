@@ -1,16 +1,10 @@
 from discord.state import Status
 
 class MessageFormats:
-    watchlist_user_online = "{0} is now Online."
-    watchlist_title = "**Your watchlist:**"
+    title__watchlist_private = "**Your watchlist:**"
 
-    status_order = [Status.online, Status.dnd, Status.idle, Status.offline, Status.invisible]
+    watchlist_user_online__name = "{0} is now Online."
+    watchlist_user_removed__name = "{0} has been removed from your watchlist."
 
-class SymbolLookup:
-    status = {
-        Status.online: ":green_circle:",
-        Status.idle: ":orange_circle:",
-        Status.dnd: ":red_circle:",
-        Status.offline: ":white_circle:",
-        Status.invisible: ":black_circle:"
-        }
+class EventKeys:
+    watchlist_alerts = "user_watchlist_alert|{0}|{1}"

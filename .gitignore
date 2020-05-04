@@ -128,6 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+bot.log
 to-do.txt
 data.json
 config.py
