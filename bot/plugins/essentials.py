@@ -9,7 +9,7 @@ class Essentials(HandlerPlugin):
 
         self._event_methods["process_private_message"] += [
             self._private_message_welcome, self._private_message_welcome_toggle, self._private_message_welcome_timeout_change,
-            self._private_message_nicknames_add
+            self._private_message_nicknames, self._private_message_nicknames_add
             ]
 
     def _private_message_welcome(self, message, handler_response=None):
@@ -61,6 +61,28 @@ class Essentials(HandlerPlugin):
 
                 self.handler.state.registered_set(timeout_duration.seconds, "user_welcome_timeout_seconds", [str(message.author.id)])
                 handler_response.add("Welcome message timeout duration set to {0}.".format(timeout_duration.to_user_string()))
+
+    def _private_message_nicknames(self, message, handler_response=None):
+        command = "!nicknames"
+
+        if handler_response is not None:
+            if Methods.clean(message.content).lower() == command:
+                nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
+
+                nickname_lines = []
+                for target_id_string, target_nickname in nicknames.values():
+                    target = self.handler.get_member(target_id_string)
+                    target_name = self.handler.get_member_name(target) if target else MessageFormats.cannot_find_user_placeholder
+
+                    nickname_lines.append("{0} ({1})".format(target_nickname, target_name))
+
+                if nickname_lines:
+                    nicknames_string = "**Your Nicknames:**" + "\n"
+                    nicknames_string += "\n".join(nickname_lines)
+                else:
+                    nicknames_string = "You have not set any nicknames."
+
+                handler_response.add(nicknames_string)
 
     def _private_message_nicknames_add(self, message, handler_response=None):
         def get_possible_arguments(arguments_string):
