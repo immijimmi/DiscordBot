@@ -4,8 +4,8 @@ from ..classes.timeoutDuration import TimeoutDuration
 from ..constants import MessageFormats as HandlerMessageFormats
 
 class MessageFormats:
-    note__user_visibility = "*Please note that I am only able to see users I share a server with.*"
-    note__timeout_duration = "*Timeout duration must be a number of seconds between 1 and {0}.*".format(TimeoutDuration.max_seconds)
+    note__user_visibility = "*Note: I am only able to see users that I share a server with.*"
+    note__timeout_duration = "*Note: Timeout duration must be a number of seconds between 1 and {0}.*".format(TimeoutDuration.max_seconds)
 
     placeholder__cannot_find_user = "unable to find user"
 
