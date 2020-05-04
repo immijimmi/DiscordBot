@@ -74,7 +74,7 @@ class Essentials(HandlerPlugin):
                     target = self.handler.get_member(target_id_string)
                     target_name = self.handler.get_member_name(target) if target else MessageFormats.cannot_find_user_placeholder
 
-                    nickname_lines.append("{0} ({1})".format(target_nickname, target_name))
+                    nickname_lines.append("- {0} ({1})".format(target_nickname, target_name))
 
                 if nickname_lines:
                     nicknames_string = "**Your Nicknames:**" + "\n"
@@ -154,18 +154,32 @@ class Essentials(HandlerPlugin):
             if message.content[:len(command)].lower() == command:
                 user_identifier = Methods.clean(message.content[len(command):])
 
+                nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
+
                 target = self.handler.get_member(user_identifier, requester=message.author)
-                if not target:
+                if target:
+                    target_name = self.handler.get_member_name(target)
+
+                    if str(target.id) not in nicknames:
+                        handler_response.add("No nickname found for {0}.".format(target_name))
+                        return
+
+                    nickname = nicknames[str(target.id)]
+
+                    del nicknames[str(target.id)]
+                    self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
+
+                    handler_response.add(MessageFormats.nickname_deleted.format(target_name, nickname))
+                    return
+
+                else:
+                    for nickname_id, nickname in nicknames.items():
+                        if user_identifier == nickname or user_identifier == nickname_id:
+                            del nicknames[nickname_id]
+                            self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
+
+                            handler_response.add(MessageFormats.nickname_deleted.format(nickname_id, nickname))
+                            return
+
                     handler_response.add(MessageFormats.cannot_find_user_identifier.format(user_identifier))
                     return
-
-                target_name = self.handler.get_member_name(target)
-
-                nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
-                if str(target.id) not in nicknames:
-                    handler_response.add("No nickname found for {0}.".format(target_name))
-                    return
-
-                nickname = nicknames[str(target.id)]
-                del nicknames[str(target.id)]
-                handler_response.add("Deleted nickname for {0} ({1}).".format(target_name, nickname))
