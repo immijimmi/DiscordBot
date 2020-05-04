@@ -4,9 +4,9 @@ from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...classes.timeoutDuration import TimeoutDuration
 from ...constants import KeyQueryFactories, Defaults, Methods
-from ..constants import MessageFormats as PluginMessageFormats
+from ..constants import MessageFormats as PluginMessageFormats, SymbolLookup
 from ..handlerPlugin import HandlerPlugin
-from .constants import MessageFormats, SymbolLookup, EventKeys
+from .constants import MessageFormats, EventKeys
 
 class Watchlist(HandlerPlugin):
     def __init__(self, handler):
@@ -179,25 +179,31 @@ class Watchlist(HandlerPlugin):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
         result = []
 
-        if watchlist:
-            target_statuses = {}
+        target_statuses = {}
 
-            for target_id in watchlist:
-                target = self.handler.get_member(target_id)
+        for target_id in watchlist:
+            target = self.handler.get_member(target_id)
 
-                if target:
-                    target_name = self.handler.get_member_name(target, requester=user)
-                    target_status_message = SymbolLookup.status[target.status] + " " + target_name
-                    
-                    target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
+            if target:
+                target_name = self.handler.get_member_name(target, requester=user)
+                target_status_message = SymbolLookup.status[target.status] + " " + target_name
+                
+                target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
 
-                    if target.status == Status.online:  # Trigger online alert timeouts for the recipient, for any users that this message will show as online
-                        new_timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(user.id)]))
-                        alert_key = EventKeys.watchlist_alerts.format(user.id, target.id)
-                        self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
+                if target.status == Status.online:  # Trigger online alert timeouts for the recipient, for any users that this message will show as online
+                    new_timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(user.id)]))
+                    alert_key = EventKeys.watchlist_alerts.format(user.id, target.id)
+                    self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
-            if target_statuses:  # If there is at least one recognised user in the watchlist
-                for status in MessageFormats.status_order:
-                    result += target_statuses.get(status, [])
+            else:
+                target_statuses["unknown"] = target_statuses.get("unknown", []) + ["{0} {1} ({2})".format(
+                    SymbolLookup.status["unknown"],
+                    target_id,
+                    PluginMessageFormats.cannot_find_user_placeholder
+                )]
 
-                return result
+        if target_statuses:  # If there is at least one recognised user in the watchlist
+            for status in MessageFormats.status_order:
+                result += target_statuses.get(status, [])
+
+            return result
