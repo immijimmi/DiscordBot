@@ -146,3 +146,26 @@ class Essentials(HandlerPlugin):
                 nicknames[str(target.id)] = target_nickname
                 self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
                 handler_response.add("`{0}` has been set as your nickname for {1}.".format(target_nickname, self.handler.get_member_name(target)))
+
+    def _private_message_nicknames_remove(self, message, handler_response=None):
+        command = "!nicknames remove "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                user_identifier = Methods.clean(message.content[len(command):])
+
+                target = self.handler.get_member(user_identifier, requester=message.author)
+                if not target:
+                    handler_response.add(MessageFormats.cannot_find_user_identifier.format(user_identifier))
+                    return
+
+                target_name = self.handler.get_member_name(target)
+
+                nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
+                if str(target.id) not in nicknames:
+                    handler_response.add("No nickname found for {0}.".format(target_name))
+                    return
+
+                nickname = nicknames[str(target.id)]
+                del nicknames[str(target.id)]
+                handler_response.add("Deleted nickname for {0} ({1}).".format(target_name, nickname))
