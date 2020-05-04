@@ -5,11 +5,7 @@ from bot.plugins import Watchlist, Meta
 
 from config import Config
 
-logging.basicConfig(
-    filename="bot.log",
-    level=logging.INFO,
-    format="%(asctime)s|%(levelname)s:%(message)s"
-    )  # Temporary logging solution
+logging.basicConfig(**Config.logging)
 
 try:
     Bot(Config.token, plugins=[Watchlist, Meta])
