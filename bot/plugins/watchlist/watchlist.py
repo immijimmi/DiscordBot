@@ -4,7 +4,7 @@ from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...classes.timeoutDuration import TimeoutDuration
 from ...constants import KeyQueryFactories, Defaults, Methods
-from ..constants import MessageFormats as PluginMessageFormats, SymbolLookup
+from ..constants import MessageFormats as PluginMessageFormats, SymbolLookup, Arguments
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats, EventKeys
 
@@ -36,7 +36,7 @@ class Watchlist(HandlerPlugin):
             watchlist_statuses = self.__user_watchlist_status_strings(after)
             
             if watchlist_statuses:
-                handler_response.add(MessageFormats.watchlist_title_private + "\n" + "\n".join(watchlist_statuses))
+                handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses))
 
     def _online_watchlist_alert(self, before, after, handler_response=None):
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
@@ -58,7 +58,7 @@ class Watchlist(HandlerPlugin):
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
                         response.add(
-                            MessageFormats.watchlist_user_online.format(self.handler.get_member_name(after, requester=watcher))
+                            MessageFormats.watchlist_user_online__name.format(self.handler.get_member_name(after, requester=watcher))
                         )
                     else:
                         response=None
@@ -75,7 +75,7 @@ class Watchlist(HandlerPlugin):
                 watchlist_statuses = self.__user_watchlist_status_strings(message.author)
 
                 if watchlist_statuses:
-                    handler_response.add(MessageFormats.watchlist_title_private + "\n" + "\n".join(watchlist_statuses) + "\n")
+                    handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses) + "\n")
                 else:
                     handler_response.add("Your watchlist is empty." + "\n")
 
@@ -96,11 +96,11 @@ class Watchlist(HandlerPlugin):
             if message.content[:len(command)].lower() == command:
                 toggle_string = Methods.clean(message.content[len(command):])
 
-                if toggle_string.lower() in PluginMessageFormats.toggle_on_strings:
+                if toggle_string.lower() in Arguments.toggle_on_strings:
                     setting_enabled = True
-                elif toggle_string.lower() in PluginMessageFormats.toggle_off_strings:
+                elif toggle_string.lower() in Arguments.toggle_off_strings:
                     setting_enabled = False
-                elif toggle_string.lower() in PluginMessageFormats.toggle_change_strings:
+                elif toggle_string.lower() in Arguments.toggle_change_strings:
                     setting_enabled = not self.handler.state.registered_get("user_watchlist_alerts_enabled", [str(message.author.id)])
                 else:
                     return
@@ -118,7 +118,7 @@ class Watchlist(HandlerPlugin):
                 try:
                     timeout_duration = TimeoutDuration.from_user_string(duration_string)
                 except ValueError:
-                    handler_response.add(PluginMessageFormats.cannot_parse_timeout_string.format(duration_string))
+                    handler_response.add(PluginMessageFormats.cannot_parse__timeout_string.format(duration_string))
                     return
 
                 self.handler.state.registered_set(timeout_duration.seconds, "user_watchlist_alert_timeout_seconds", [str(message.author.id)])
@@ -144,7 +144,7 @@ class Watchlist(HandlerPlugin):
                         handler_response.add("{0} has been added to your watchlist.".format(target_name))
 
                 else:
-                    handler_response.add(PluginMessageFormats.cannot_find_user_identifier.format(target_identifier))
+                    handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
 
     def _private_message_watchlist_remove(self, message, handler_response=None):
         command = "!watchlist remove "
@@ -161,7 +161,7 @@ class Watchlist(HandlerPlugin):
 
                     if target.id in watchlist:
                         self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
-                        handler_response.add(MessageFormats.watchlist_user_removed.format(target_name))
+                        handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_name))
 
                     else:
                         handler_response.add("{0} is not in your watchlist.".format(target_name))
@@ -170,10 +170,10 @@ class Watchlist(HandlerPlugin):
                     target_id = int(target_identifier)
 
                     self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
-                    handler_response.add(MessageFormats.watchlist_user_removed.format(target_identifier))
+                    handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_identifier))
 
                 else:
-                    handler_response.add(PluginMessageFormats.cannot_find_user_identifier.format(target_identifier))
+                    handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
 
     def __user_watchlist_status_strings(self, user):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
@@ -199,11 +199,11 @@ class Watchlist(HandlerPlugin):
                 target_statuses["unknown"] = target_statuses.get("unknown", []) + ["{0} {1} ({2})".format(
                     SymbolLookup.status["unknown"],
                     target_id,
-                    PluginMessageFormats.cannot_find_user_placeholder
+                    PluginMessageFormats.placeholder__cannot_find_user
                 )]
 
         if target_statuses:  # If there is at least one recognised user in the watchlist
-            for status in MessageFormats.status_order:
+            for status in Arguments.status_order:
                 result += target_statuses.get(status, [])
 
             return result

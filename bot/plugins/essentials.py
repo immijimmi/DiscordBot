@@ -34,11 +34,11 @@ class Essentials(HandlerPlugin):
             if message.content[:len(command)].lower() == command:
                 toggle_string = Methods.clean(message.content[len(command):])
 
-                if toggle_string.lower() in MessageFormats.toggle_on_strings:
+                if toggle_string.lower() in Arguments.toggle_on_strings:
                     setting_enabled = True
-                elif toggle_string.lower() in MessageFormats.toggle_off_strings:
+                elif toggle_string.lower() in Arguments.toggle_off_strings:
                     setting_enabled = False
-                elif toggle_string.lower() in MessageFormats.toggle_change_strings:
+                elif toggle_string.lower() in Arguments.toggle_change_strings:
                     setting_enabled = not self.handler.state.registered_get("user_welcome_enabled", [str(message.author.id)])
                 else:
                     return
@@ -56,7 +56,7 @@ class Essentials(HandlerPlugin):
                 try:
                     timeout_duration = TimeoutDuration.from_user_string(duration_string)
                 except ValueError:
-                    handler_response.add(MessageFormats.cannot_parse_timeout_string.format(duration_string))
+                    handler_response.add(MessageFormats.cannot_parse__timeout_string.format(duration_string))
                     return
 
                 self.handler.state.registered_set(timeout_duration.seconds, "user_welcome_timeout_seconds", [str(message.author.id)])
@@ -72,7 +72,7 @@ class Essentials(HandlerPlugin):
                 nickname_lines = []
                 for target_id_string, target_nickname in nicknames.items():
                     target = self.handler.get_member(target_id_string)
-                    target_name = self.handler.get_member_name(target) if target else MessageFormats.cannot_find_user_placeholder
+                    target_name = self.handler.get_member_name(target) if target else MessageFormats.placeholder__cannot_find_user
 
                     nickname_lines.append("- {0} ({1})".format(target_nickname, target_name))
 
@@ -114,19 +114,23 @@ class Essentials(HandlerPlugin):
 
                 non_empty_possible_arguments = list(filter(lambda args: args[0] and args[1], possible_arguments))
                 if not non_empty_possible_arguments:
-                    handler_response.add(MessageFormats.invalid_arguments.format(arguments_string))
-                    return
+                    if Arguments.nickname_separator in arguments_string:
+                        handler_response.add(MessageFormats.cannot_find_user)
+                        return
+                    else:
+                        handler_response.add(MessageFormats.invalid__arguments.format(arguments_string))
+                        return
 
                 valid_possible_arguments = list(filter(lambda args: not any([substring in args[1] for substring in invalid_nickname_substrings]), non_empty_possible_arguments))
                 if not valid_possible_arguments:
                     handler_response.add("Nicknames cannot contain the following strings of text: {0}".format(
-                        ", ".join([MessageFormats.list_item.format(substring) for substring in invalid_nickname_substrings])
+                        ", ".join([MessageFormats.format__list_item.format(substring) for substring in invalid_nickname_substrings])
                         )
                     )
                     return
                 if len(valid_possible_arguments) > 1:
                     handler_response.add("Conflicting nickname options: {0}".format(
-                        ", ".join([MessageFormats.list_item.format(args) for args in valid_possible_arguments])
+                        ", ".join([MessageFormats.format__list_item.format(args) for args in valid_possible_arguments])
                         )
                     )
                     return
@@ -134,7 +138,7 @@ class Essentials(HandlerPlugin):
                 target_identifier_string, target_nickname = valid_possible_arguments[0]
                 target = self.handler.get_member(target_identifier_string, requester=message.author)
                 if not target:  # Added for redundancy
-                    handler_response.add(MessageFormats.cannot_find_user_identifier.format(target_identifier_string))
+                    handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier_string))
                     return
 
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
@@ -169,17 +173,17 @@ class Essentials(HandlerPlugin):
                     del nicknames[str(target.id)]
                     self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                    handler_response.add(MessageFormats.nickname_deleted.format(target_name, nickname))
+                    handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_name, nickname))
                     return
 
                 else:
                     for nickname_id, nickname in nicknames.items():
-                        if user_identifier == nickname or user_identifier == nickname_id:
+                        if user_identifier.lower() == Methods.clean(nickname).lower() or user_identifier == nickname_id:
                             del nicknames[nickname_id]
                             self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                            handler_response.add(MessageFormats.nickname_deleted.format(nickname_id, nickname))
+                            handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, nickname))
                             return
 
-                    handler_response.add(MessageFormats.cannot_find_user_identifier.format(user_identifier))
+                    handler_response.add(MessageFormats.cannot_find_user__identifier.format(user_identifier))
                     return
