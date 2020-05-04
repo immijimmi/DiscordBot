@@ -101,5 +101,33 @@ class MessageFormats:
                 "description": "updates the code base and reboots the machine the bot is running on"
             }],
             "children": {}
+        },
+        "!nicknames": {
+            "usage": [{
+                "permissions": [Defaults.permissions],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": [],
+                "description": "displays the nicknames you have set for other users"
+            }],
+            "children": {
+                "!nicknames add": {
+                    "usage": [{
+                        "permissions": [Defaults.permissions],
+                        "visibility": SymbolLookup.visibility["private"],
+                        "arguments": ["username#ID or Discord ID", "nickname"],
+                        "description": "registers your nickname to the specified user"
+                    }],
+                    "children": {}
+                },
+                "!nicknames remove": {
+                    "usage": [{
+                        "permissions": [Defaults.permissions],
+                        "visibility": SymbolLookup.visibility["private"],
+                        "arguments": ["username#ID, Discord ID or nickname"],
+                        "description": "deletes the specified nickname"
+                    }],
+                    "children": {}
+                }
+            }
         }
     }
