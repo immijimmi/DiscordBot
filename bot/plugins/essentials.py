@@ -9,7 +9,7 @@ class Essentials(HandlerPlugin):
 
         self._event_methods["process_private_message"] += [
             self._private_message_welcome, self._private_message_welcome_toggle, self._private_message_welcome_timeout_change,
-            self._private_message_nicknames, self._private_message_nicknames_add
+            self._private_message_nicknames, self._private_message_nicknames_add, self._private_message_nicknames_remove
             ]
 
     def _private_message_welcome(self, message, handler_response=None):
@@ -70,7 +70,7 @@ class Essentials(HandlerPlugin):
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
 
                 nickname_lines = []
-                for target_id_string, target_nickname in nicknames.values():
+                for target_id_string, target_nickname in nicknames.items():
                     target = self.handler.get_member(target_id_string)
                     target_name = self.handler.get_member_name(target) if target else MessageFormats.cannot_find_user_placeholder
 
