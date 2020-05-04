@@ -20,5 +20,5 @@ class Methods:
         return text.strip().replace("\n", "")
 
 class MessageFormats:
-    format__list_item = "**{0}**"
+    format__list_item = "'**{0}**'"
     format__user_input = "`{0}`"
