@@ -6,7 +6,7 @@ import json
 import logging
 from collections import deque
 
-from .constants import KeyQueryFactories, Defaults, Methods
+from .constants import KeyQueryFactories, Defaults, Methods, MessageFormats
 from .plugins.essentials import Essentials
 from .classes.permissions import Permissions
 from .classes.messageBuilder import MessageBuilder
@@ -73,7 +73,7 @@ class EventHandler():
 
         # If none of the plugins could process the message and return a response
         if not responses[0] and type(responses[0]) is MessageBuilder:
-            responses[0].add("Unrecognised command: `{0}`".format(message.content) + "\n")
+            responses[0].add("Unrecognised command: " + MessageFormats.format__user_input.format(message.content) + "\n")
 
         await self._send_responses(responses)
         await self._run_callbacks()

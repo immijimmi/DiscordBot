@@ -1,5 +1,5 @@
 from ..classes.timeoutDuration import TimeoutDuration
-from ..constants import Methods
+from ..constants import Methods, MessageFormats as HandlerMessageFormats
 from .constants import MessageFormats, Arguments
 from .handlerPlugin import HandlerPlugin
 
@@ -124,13 +124,13 @@ class Essentials(HandlerPlugin):
                 valid_possible_arguments = list(filter(lambda args: not any([substring in args[1] for substring in invalid_nickname_substrings]), non_empty_possible_arguments))
                 if not valid_possible_arguments:
                     handler_response.add("Nicknames cannot contain the following strings of text: {0}".format(
-                        ", ".join([MessageFormats.format__list_item.format(substring) for substring in invalid_nickname_substrings])
+                        ", ".join([HandlerMessageFormats.format__list_item.format(substring) for substring in invalid_nickname_substrings])
                         )
                     )
                     return
                 if len(valid_possible_arguments) > 1:
                     handler_response.add("Conflicting nickname options: {0}".format(
-                        ", ".join([MessageFormats.format__list_item.format(args) for args in valid_possible_arguments])
+                        ", ".join([HandlerMessageFormats.format__list_item.format(args) for args in valid_possible_arguments])
                         )
                     )
                     return
@@ -149,7 +149,7 @@ class Essentials(HandlerPlugin):
 
                 nicknames[str(target.id)] = target_nickname
                 self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
-                handler_response.add("`{0}` has been set as your nickname for {1}.".format(target_nickname, self.handler.get_member_name(target)))
+                handler_response.add("{0} has been set as your nickname for {1}.".format(target_nickname, self.handler.get_member_name(target)))
 
     def _private_message_nicknames_remove(self, message, handler_response=None):
         command = "!nicknames remove "

@@ -18,3 +18,7 @@ class Methods:
     def clean(text):
         """Removes surrounding whitespace and any '\n's. Use to simplify dynamic inputs and outputs (e.g. usernames, command arguments)"""
         return text.strip().replace("\n", "")
+
+class MessageFormats:
+    format__list_item = "**{0}**"
+    format__user_input = "`{0}`"
