@@ -165,7 +165,7 @@ class Essentials(HandlerPlugin):
                     target_name = self.handler.get_member_name(target)
 
                     if str(target.id) not in nicknames:
-                        handler_response.add("No nickname found for {0}.".format(target_name))
+                        handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_name))
                         return
 
                     nickname = nicknames[str(target.id)]
@@ -185,5 +185,5 @@ class Essentials(HandlerPlugin):
                             handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, nickname))
                             return
 
-                    handler_response.add(MessageFormats.cannot_find_user__identifier.format(user_identifier))
+                    handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(user_identifier))
                     return

@@ -14,6 +14,7 @@ class MessageFormats:
     cannot_parse__timeout_string = "Unable to get a timeout duration from the provided value: " + HandlerMessageFormats.format__user_input + "\n" + note__timeout_duration
     invalid__arguments = "Invalid command arguments: " + HandlerMessageFormats.format__user_input
     nickname_deleted__name_nickname = "Deleted nickname for {0} ({1})."
+    cannot_find_nickname__identifier = "No nickname found based on the name: " + HandlerMessageFormats.format__user_input
 
 class Arguments:
     nickname_separator = " as: "
