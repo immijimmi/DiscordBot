@@ -1,5 +1,6 @@
 from ...constants import Defaults
 from ...classes.permissions import Permissions
+from ..constants import Arguments
 
 class SymbolLookup:
     visibility = {"public": ":unlock:", "private": ":lock:", "both": ":arrows_clockwise:"}
@@ -114,7 +115,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [Defaults.permissions],
                         "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["username#ID or Discord ID", "nickname"],
+                        "arguments": ["username#ID or Discord ID`{0}`nickname".format(Arguments.nickname_separator)],
                         "description": "registers your nickname to the specified user"
                     }],
                     "children": {}
