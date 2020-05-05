@@ -12,10 +12,10 @@ class Watchlist(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["user_online"] += [self._online_welcome_watchlist, self._online_watchlist_alert]
+        self._event_methods["user_online"] += [self._welcome__watchlist, self._online__watchlist_alert]
         self._event_methods["process_private_message"] += [
-            self._private_message_watchlist, self._private_message_watchlist_toggle, self._private_message_watchlist_timeout_change,
-            self._private_message_watchlist_add, self._private_message_watchlist_remove
+            self._private_message__watchlist, self._private_message__watchlist_toggle, self._private_message__watchlist_timeout_change,
+            self._private_message__watchlist_add, self._private_message__watchlist_remove
             ]
 
     def _register_paths(self):
@@ -31,14 +31,14 @@ class Watchlist(HandlerPlugin):
             [{}, {}, {}, {}, True]
             )
 
-    def _online_welcome_watchlist(self, before, after, handler_response=None):
+    def _welcome__watchlist(self, before, after, handler_response=None):
         if handler_response is not None:
             watchlist_statuses = self.__user_watchlist_status_strings(after)
             
             if watchlist_statuses:
                 handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses))
 
-    def _online_watchlist_alert(self, before, after, handler_response=None):
+    def _online__watchlist_alert(self, before, after, handler_response=None):
         all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
 
         responses = []
@@ -67,7 +67,7 @@ class Watchlist(HandlerPlugin):
 
         return responses
 
-    def _private_message_watchlist(self, message, handler_response=None):
+    def _private_message__watchlist(self, message, handler_response=None):
         command = "!watchlist"
 
         if handler_response is not None:
@@ -89,7 +89,7 @@ class Watchlist(HandlerPlugin):
 
                 handler_response.add(settings_string)
 
-    def _private_message_watchlist_toggle(self, message, handler_response=None):
+    def _private_message__watchlist_toggle(self, message, handler_response=None):
         command = "!watchlist "
 
         if handler_response is not None:
@@ -108,7 +108,7 @@ class Watchlist(HandlerPlugin):
                 self.handler.state.registered_set(setting_enabled, "user_watchlist_alerts_enabled", [str(message.author.id)])
                 handler_response.add("Watchlist alerts {0}.".format("enabled" if setting_enabled else "disabled"))
 
-    def _private_message_watchlist_timeout_change(self, message, handler_response=None):
+    def _private_message__watchlist_timeout_change(self, message, handler_response=None):
         command = "!watchlist timeout "
 
         if handler_response is not None:
@@ -124,7 +124,7 @@ class Watchlist(HandlerPlugin):
                 self.handler.state.registered_set(timeout_duration.seconds, "user_watchlist_alert_timeout_seconds", [str(message.author.id)])
                 handler_response.add("Watchlist timeout duration set to {0}.".format(timeout_duration.to_user_string()))
 
-    def _private_message_watchlist_add(self, message, handler_response=None):
+    def _private_message__watchlist_add(self, message, handler_response=None):
         command = "!watchlist add "
 
         if handler_response is not None:
@@ -146,7 +146,7 @@ class Watchlist(HandlerPlugin):
                 else:
                     handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
 
-    def _private_message_watchlist_remove(self, message, handler_response=None):
+    def _private_message__watchlist_remove(self, message, handler_response=None):
         command = "!watchlist remove "
 
         if handler_response is not None:

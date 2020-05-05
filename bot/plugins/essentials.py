@@ -8,11 +8,11 @@ class Essentials(HandlerPlugin):
         super().__init__(handler)
 
         self._event_methods["process_private_message"] += [
-            self._private_message_welcome, self._private_message_welcome_toggle, self._private_message_welcome_timeout_change,
-            self._private_message_nicknames, self._private_message_nicknames_add, self._private_message_nicknames_remove
+            self._private_message__welcome, self._private_message__welcome_toggle, self._private_message__welcome_timeout_change,
+            self._private_message__nicknames, self._private_message__nicknames_add, self._private_message__nicknames_remove
             ]
 
-    def _private_message_welcome(self, message, handler_response=None):
+    def _private_message__welcome(self, message, handler_response=None):
         command = "!welcome"
 
         if handler_response is not None:
@@ -27,7 +27,7 @@ class Essentials(HandlerPlugin):
 
                 handler_response.add(settings_string)
 
-    def _private_message_welcome_toggle(self, message, handler_response=None):
+    def _private_message__welcome_toggle(self, message, handler_response=None):
         command = "!welcome "
 
         if handler_response is not None:
@@ -46,7 +46,7 @@ class Essentials(HandlerPlugin):
                 self.handler.state.registered_set(setting_enabled, "user_welcome_enabled", [str(message.author.id)])
                 handler_response.add("Welcome messages {0}.".format("enabled" if setting_enabled else "disabled"))
 
-    def _private_message_welcome_timeout_change(self, message, handler_response=None):
+    def _private_message__welcome_timeout_change(self, message, handler_response=None):
         command = "!welcome timeout "
 
         if handler_response is not None:
@@ -62,7 +62,7 @@ class Essentials(HandlerPlugin):
                 self.handler.state.registered_set(timeout_duration.seconds, "user_welcome_timeout_seconds", [str(message.author.id)])
                 handler_response.add("Welcome message timeout duration set to {0}.".format(timeout_duration.to_user_string()))
 
-    def _private_message_nicknames(self, message, handler_response=None):
+    def _private_message__nicknames(self, message, handler_response=None):
         command = "!nicknames"
 
         if handler_response is not None:
@@ -84,7 +84,7 @@ class Essentials(HandlerPlugin):
 
                 handler_response.add(nicknames_string)
 
-    def _private_message_nicknames_add(self, message, handler_response=None):
+    def _private_message__nicknames_add(self, message, handler_response=None):
         def get_possible_arguments(arguments_string):
             result = []
 
@@ -151,7 +151,7 @@ class Essentials(HandlerPlugin):
                 self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
                 handler_response.add("{0} has been set as your nickname for {1}.".format(target_nickname, self.handler.get_member_name(target)))
 
-    def _private_message_nicknames_remove(self, message, handler_response=None):
+    def _private_message__nicknames_remove(self, message, handler_response=None):
         command = "!nicknames remove "
 
         if handler_response is not None:
