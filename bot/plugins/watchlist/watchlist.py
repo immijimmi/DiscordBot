@@ -160,7 +160,7 @@ class Watchlist(HandlerPlugin):
                     target_name = self.handler.get_member_name(target, requester=message.author)
 
                     if target.id in watchlist:
-                        self.handler.state.registered_set(list(filter(lambda user_id: user_id != target.id, watchlist)), "user_watchlist", [str(message.author.id)])
+                        self.__remove_watchlist_user(message.author.id, target.id)
                         handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_name))
 
                     else:
@@ -169,11 +169,19 @@ class Watchlist(HandlerPlugin):
                 elif target_identifier in [str(target_id) for target_id in watchlist]:
                     target_id = int(target_identifier)
 
-                    self.handler.state.registered_set(list(filter(lambda id: id != target_id, watchlist)), "user_watchlist", [str(message.author.id)])
+                    self.__remove_watchlist_user(message.author.id, target_id)
                     handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_identifier))
 
                 else:
                     handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
+
+    def __remove_watchlist_user(self, author_id, target_id):
+        watchlist = self.handler.state.registered_get("user_watchlist", [str(author_id)])
+
+        alert_key = EventKeys.watchlist_alerts.format(author_id, target_id)
+        self.handler.try_delete_timeout(alert_key)
+
+        self.handler.state.registered_set(list(filter(lambda user_id: user_id != target_id, watchlist)), "user_watchlist", [str(author_id)])
 
     def __user_watchlist_status_strings(self, user):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user.id)])
@@ -190,9 +198,11 @@ class Watchlist(HandlerPlugin):
                 
                 target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
 
-                if target.status == Status.online:  # Trigger online alert timeouts for the recipient, for any users that this message will show as online
+                alert_key = EventKeys.watchlist_alerts.format(user.id, target.id)
+                self.handler.try_delete_timeout(alert_key)  # Reset recipient's timeouts
+
+                if target.status == Status.online:  # Trigger fresh online alert timeouts for the recipient, for any users that this message will show as online
                     new_timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(user.id)]))
-                    alert_key = EventKeys.watchlist_alerts.format(user.id, target.id)
                     self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
             else:

@@ -43,6 +43,11 @@ class EventHandler():
             self._timeouts[timeout_key] = EventTimeout(timeout_key, new_timeout_duration)
             return True
 
+    def try_delete_timeout(self, timeout_key):
+        if timeout_key in self._timeouts:
+            del self._timeouts[timeout_key]
+            return True
+
     #Event method
     async def on_ready(self):
         responses = []
