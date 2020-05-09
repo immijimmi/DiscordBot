@@ -60,12 +60,11 @@ class Meta(HandlerPlugin):
             if Methods.clean(message.content).lower() == command:
                 user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
 
-                handler_response.title = "**Command List:**"
-
-                key_string = "*Key: "
+                key_string = "**Command List:**" + "\n"
+                key_string += "*Key: "
                 key_string += ":lock: `used by messaging the bot` "
                 key_string += ":unlock: `used in server and group channels` "
                 key_string += ":arrows_clockwise: `can be used either way`*"
 
-                handler_response.add(key_string)
+                handler_response.title = key_string
                 handler_response.add("\n".join(build_command_list(MessageFormats.commands, user_permissions)))
