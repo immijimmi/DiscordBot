@@ -60,6 +60,15 @@ class MessageFormats:
             }],
             "children": {}
         },
+        "!settings": {
+            "usage": [{
+                "permissions": [Defaults.permissions],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": [],
+                "description": "displays all settings"
+            }],
+            "children": {}
+        },
         "!welcome": {
             "usage": [{
                 "permissions": [Defaults.permissions],
