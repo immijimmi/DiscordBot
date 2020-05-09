@@ -9,8 +9,11 @@ class HandlerPlugin(abc.ABC):
             "process_private_message": [],
             "process_public_message": [],
             "user_online": [],
-            "user_away": []
+            "user_away": [],
             }
+        self._meta_methods = {
+            "settings": []
+        }
 
         self._register_paths()
 

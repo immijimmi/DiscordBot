@@ -11,6 +11,7 @@ class Essentials(HandlerPlugin):
             self._private_message__welcome, self._private_message__welcome_toggle, self._private_message__welcome_timeout_change,
             self._private_message__nicknames, self._private_message__nicknames_add, self._private_message__nicknames_remove
             ]
+        self._meta_methods["settings"] += [self._settings__welcome]
 
     def _private_message__welcome(self, message, handler_response=None):
         command = "!welcome"
@@ -26,6 +27,9 @@ class Essentials(HandlerPlugin):
                 settings_string += "timeout duration: " + "`" + timeout_duration.to_user_string() + "`"
 
                 handler_response.add(settings_string)
+
+    def _settings__welcome():
+        pass
 
     def _private_message__welcome_toggle(self, message, handler_response=None):
         command = "!welcome "
