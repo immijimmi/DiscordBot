@@ -8,6 +8,7 @@ from collections import deque
 
 from .constants import KeyQueryFactories, Defaults, Methods, MessageFormats
 from .plugins.essentials import Essentials
+from .plugins.meta import Meta
 from .classes.permissions import Permissions
 from .classes.messageBuilder import MessageBuilder
 from .classes.eventTimeout import EventTimeout
@@ -22,10 +23,11 @@ class EventHandler():
 
         self.state = State(extensions=[Registrar, Listeners])
         self._load_state()
+
         self.state.add_listener("set", lambda metadata: self._save_state())
         self._register_paths()
 
-        self.plugins = (Essentials(self),) + tuple(plugin(self) for plugin in plugins)
+        self.plugins = (Essentials(self), Meta(self)) + tuple(plugin(self) for plugin in plugins)
 
     def add_callback(self, callback, to_end=False):  # Callbacks added with to_end as True will be called last
         if to_end:

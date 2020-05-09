@@ -1,9 +1,9 @@
 import sys
 import os
 
-from ...constants import Methods
-from ...classes.permissions import Permissions
-from ..handlerPlugin import HandlerPlugin
+from ..constants import Methods
+from ..classes.permissions import Permissions
+from .handlerPlugin import HandlerPlugin
 from .constants import MessageFormats
 
 class Meta(HandlerPlugin):

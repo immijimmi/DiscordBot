@@ -1,7 +1,7 @@
 from discord.state import Status
 
 class MessageFormats:
-    title__watchlist_private = "**Your watchlist:**"
+    title__watchlist_private = "**Watchlist:**"
 
     watchlist_user_online__name = "{0} is now Online."
     watchlist_user_removed__name = "{0} has been removed from your watchlist."
