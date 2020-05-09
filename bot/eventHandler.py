@@ -143,11 +143,11 @@ class EventHandler():
         await self._send_responses(responses)
         await self._run_callbacks()
 
-    def get_member(self, member_identifier, requester=None):
+    def get_member(self, member_identifier, requester_id=None):
         member_identifier = str(member_identifier)  # Coalesce types to string only
         
-        if requester:
-            user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
+        if requester_id:
+            user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
 
             for nickname_id_string in user_nicknames:
                 if Methods.clean(user_nicknames[nickname_id_string]).lower() == Methods.clean(member_identifier).lower():
@@ -162,9 +162,9 @@ class EventHandler():
                 if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == Methods.clean(member_identifier).lower():
                     return member
 
-    def get_member_name(self, member, requester=None):
-        if requester:
-            user_nicknames = self.state.registered_get("user_nicknames", [str(requester.id)])
+    def get_member_name(self, member, requester_id=None):
+        if requester_id:
+            user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
 
             if str(member.id) in user_nicknames:
                 return Methods.clean(user_nicknames[str(member.id)])
