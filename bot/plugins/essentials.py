@@ -74,7 +74,7 @@ class Essentials(HandlerPlugin):
                     target = self.handler.get_member(target_id_string)
                     target_name = self.handler.get_member_name(target) if target else MessageFormats.placeholder__cannot_find_user
 
-                    nickname_lines.append("- {0} ({1})".format(target_nickname, target_name))
+                    nickname_lines.append("- {0} ({1})".format(Methods.clean(target_nickname), target_name))
 
                 if nickname_lines:
                     nicknames_string = "**Your Nicknames:**" + "\n"
@@ -143,7 +143,7 @@ class Essentials(HandlerPlugin):
 
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
                 for nickname in nicknames.values():
-                    if Methods.clean(nickname).lower() == Methods.clean(target_nickname).lower():
+                    if Methods.clean(nickname).lower() == target_nickname.lower():
                         handler_response.add("The provided nickname is already in your list: {0}".format(target_nickname))
                         return
 
@@ -170,7 +170,7 @@ class Essentials(HandlerPlugin):
                         del nicknames[str(target.id)]
                         self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                        handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_name, nickname))
+                        handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_name, Methods.clean(nickname)))
                         return
 
                 for nickname_id, nickname in nicknames.items():
@@ -178,7 +178,7 @@ class Essentials(HandlerPlugin):
                         del nicknames[nickname_id]
                         self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                        handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, nickname))
+                        handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, Methods.clean(nickname)))
                         return
 
                 handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(user_identifier))
