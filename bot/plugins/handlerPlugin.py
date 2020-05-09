@@ -1,12 +1,14 @@
 import abc
 
+from ..constants import Methods
+
 class HandlerPlugin(abc.ABC):
     def __init__(self, handler):
         self.handler = handler
 
         self._event_methods = {
             "on_ready": [],
-            "process_private_message": [],
+            "process_private_message": [self._private_message__settings],
             "process_public_message": [],
             "user_online": [],
             "user_away": [],
@@ -67,6 +69,20 @@ class HandlerPlugin(abc.ABC):
             responses += method_responses if method_responses else []
 
         return responses
+
+    def _private_message__settings(self, message, handler_response=None):
+        command = "!settings"
+
+        if handler_response is not None:
+            if Methods.clean(message.content).lower() == command:
+                responses = []
+
+                for method in self._meta_methods["settings"]:
+                    method_responses = method(message.author, handler_response)
+
+                    responses += method_responses if method_responses else []
+
+                return responses
 
     def _register_paths(self):
         pass

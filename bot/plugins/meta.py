@@ -65,21 +65,7 @@ class Meta(HandlerPlugin):
                 key_string = "*Key: "
                 key_string += ":lock: `used by messaging the bot` "
                 key_string += ":unlock: `used in server and group channels` "
-                key_string += ":arrows_clockwise: `can be used either way`*" + "\n"
+                key_string += ":arrows_clockwise: `can be used either way`*"
 
                 handler_response.add(key_string)
                 handler_response.add("\n".join(build_command_list(MessageFormats.commands, user_permissions)))
-
-    def _private_message__settings(self, message, handler_response=None):
-        command = "!settings"
-
-        if handler_response is not None:
-            if Methods.clean(message.content).lower() == command:
-                responses = []
-
-            for method in self._meta_methods["settings"]:
-                method_responses = method(message.author, handler_response)
-
-                responses += method_responses if method_responses else []
-
-            return responses

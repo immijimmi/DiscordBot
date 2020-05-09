@@ -4,8 +4,6 @@ from .constants import Defaults
 
 class MessageBuilder:
     def __init__(self, recipients=[], delimiter=Defaults.message_delimiter):
-        self._delimiter = delimiter
-
         self._before = deque()
         self._main = deque()
         self._after = deque()
@@ -13,6 +11,8 @@ class MessageBuilder:
         self._callbacks = []
 
         self.recipients = list(recipients)
+        self.delimiter = delimiter
+
         self.title = None
         self.mark = Defaults.message_mark
 
@@ -40,7 +40,7 @@ class MessageBuilder:
 
     def get(self):
         if self:
-            return self.mark + self._delimiter.join(self._before + deque([self.title] if self.title is not None else []) + self._main + self._after)
+            return self.mark + self.delimiter.join(self._before + deque([self.title] if self.title is not None else []) + self._main + self._after)
 
     async def send(self):
         if self:

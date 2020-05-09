@@ -80,7 +80,7 @@ class EventHandler():
 
         # If none of the plugins could process the message and return a response
         if not responses[0] and type(responses[0]) is MessageBuilder:
-            responses[0].add("Unrecognised command: " + MessageFormats.format__user_input.format(message.content) + "\n")
+            responses[0].add("Unrecognised command: " + MessageFormats.format__user_input.format(message.content))
 
         await self._send_responses(responses)
         await self._run_callbacks()
@@ -119,7 +119,7 @@ class EventHandler():
             
             if timeout_triggered:
                 response = MessageBuilder(recipients=[after])
-                response.title = "**Welcome back!**" + "\n"
+                response.title = "**Welcome back!**"
 
         responses = [response]
 

@@ -80,9 +80,9 @@ class Watchlist(HandlerPlugin):
         watchlist_statuses = self.__user_watchlist_status_strings(user)
 
         if watchlist_statuses:
-            handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses) + "\n")
+            handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses))
         else:
-            handler_response.add("Your watchlist is empty." + "\n")
+            handler_response.add("Your watchlist is empty.")
 
         settings_string = "**Watchlist Settings:**" + "\n"
 
