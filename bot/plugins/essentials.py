@@ -11,25 +11,26 @@ class Essentials(HandlerPlugin):
             self._private_message__welcome, self._private_message__welcome_toggle, self._private_message__welcome_timeout_change,
             self._private_message__nicknames, self._private_message__nicknames_add, self._private_message__nicknames_remove
             ]
-        self._meta_methods["settings"] += [self._settings__welcome]
+
+        self._meta_methods["settings"] += [self._settings__welcome, self._settings__nicknames]
 
     def _private_message__welcome(self, message, handler_response=None):
         command = "!welcome"
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                settings_string = "**Welcome Message Settings:**" + "\n"
+                return self._settings__welcome(message.author, handler_response)
 
-                welcome_status = "enabled" if self.handler.state.registered_get("user_welcome_enabled", [str(message.author.id)]) else "disabled"
-                settings_string += "status: " + "`" + welcome_status + "`" + "\n"
+    def _settings__welcome(self, user, handler_response):
+        settings_string = "**Welcome Message Settings:**" + "\n"
 
-                timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_welcome_timeout_seconds", [str(message.author.id)]))
-                settings_string += "timeout duration: " + "`" + timeout_duration.to_user_string() + "`"
+        welcome_status = "enabled" if self.handler.state.registered_get("user_welcome_enabled", [str(user.id)]) else "disabled"
+        settings_string += "status: " + "`" + welcome_status + "`" + "\n"
 
-                handler_response.add(settings_string)
+        timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_welcome_timeout_seconds", [str(user.id)]))
+        settings_string += "timeout duration: " + "`" + timeout_duration.to_user_string() + "`"
 
-    def _settings__welcome():
-        pass
+        handler_response.add(settings_string)
 
     def _private_message__welcome_toggle(self, message, handler_response=None):
         command = "!welcome "
@@ -71,22 +72,25 @@ class Essentials(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
+                return self._settings__nicknames(message.author, handler_response)
 
-                nickname_lines = []
-                for target_id_string, target_nickname in nicknames.items():
-                    target = self.handler.get_member(target_id_string)
-                    target_name = self.handler.get_member_name(target) if target else MessageFormats.placeholder__cannot_find_user
+    def _settings__nicknames(self, user, handler_response):
+        nicknames = self.handler.state.registered_get("user_nicknames", [str(user.id)])
 
-                    nickname_lines.append("- {0} ({1})".format(Methods.clean(target_nickname), target_name))
+        nickname_lines = []
+        for target_id_string, target_nickname in nicknames.items():
+            target = self.handler.get_member(target_id_string)
+            target_name = self.handler.get_member_name(target) if target else MessageFormats.placeholder__cannot_find_user
 
-                if nickname_lines:
-                    nicknames_string = "**Your Nicknames:**" + "\n"
-                    nicknames_string += "\n".join(nickname_lines)
-                else:
-                    nicknames_string = "You have not set any nicknames."
+            nickname_lines.append("- {0} ({1})".format(Methods.clean(target_nickname), target_name))
 
-                handler_response.add(nicknames_string)
+        if nickname_lines:
+            nicknames_string = "**Nicknames:**" + "\n"
+            nicknames_string += "\n".join(nickname_lines)
+        else:
+            nicknames_string = "You have not set any nicknames."
+
+        handler_response.add(nicknames_string)
 
     def _private_message__nicknames_add(self, message, handler_response=None):
         def get_possible_arguments(arguments_string):

@@ -17,6 +17,8 @@ class Watchlist(HandlerPlugin):
             self._private_message__watchlist, self._private_message__watchlist_toggle, self._private_message__watchlist_timeout_change,
             self._private_message__watchlist_add, self._private_message__watchlist_remove
             ]
+        
+        self._meta_methods["settings"] += [self._settings__watchlist]
 
     def _register_paths(self):
         self.handler.state.register("user_watchlist", ["user_settings", KeyQueryFactories.dynamic_key, "watchlist", "members"], [{}, {}, {}, []])
@@ -72,22 +74,25 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                watchlist_statuses = self.__user_watchlist_status_strings(message.author)
+                return self._settings__watchlist(message.author, handler_response)
 
-                if watchlist_statuses:
-                    handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses) + "\n")
-                else:
-                    handler_response.add("Your watchlist is empty." + "\n")
+    def _settings__watchlist(self, user, handler_response):
+        watchlist_statuses = self.__user_watchlist_status_strings(user)
 
-                settings_string = "**Watchlist Settings:**" + "\n"
+        if watchlist_statuses:
+            handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses) + "\n")
+        else:
+            handler_response.add("Your watchlist is empty." + "\n")
 
-                watchlist_status = "enabled" if self.handler.state.registered_get("user_watchlist_alerts_enabled", [str(message.author.id)]) else "disabled"
-                settings_string += "status: `{0}`\n".format(watchlist_status)
+        settings_string = "**Watchlist Settings:**" + "\n"
 
-                timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(message.author.id)]))
-                settings_string += "timeout duration: `{0}`".format(timeout_duration.to_user_string())
+        watchlist_status = "enabled" if self.handler.state.registered_get("user_watchlist_alerts_enabled", [str(user.id)]) else "disabled"
+        settings_string += "status: `{0}`\n".format(watchlist_status)
 
-                handler_response.add(settings_string)
+        timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(user.id)]))
+        settings_string += "timeout duration: `{0}`".format(timeout_duration.to_user_string())
+
+        handler_response.add(settings_string)
 
     def _private_message__watchlist_toggle(self, message, handler_response=None):
         command = "!watchlist "

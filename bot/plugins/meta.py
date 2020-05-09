@@ -10,7 +10,7 @@ class Meta(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["process_private_message"] += [self._private_message__reboot, self._private_message__help]
+        self._event_methods["process_private_message"] += [self._private_message__reboot, self._private_message__help, self._private_message__settings]
 
     def _private_message__reboot(self, message, handler_response=None):
         async def update_and_restart():
@@ -69,3 +69,17 @@ class Meta(HandlerPlugin):
 
                 handler_response.add(key_string)
                 handler_response.add("\n".join(build_command_list(MessageFormats.commands, user_permissions)))
+
+    def _private_message__settings(self, message, handler_response=None):
+        command = "!settings"
+
+        if handler_response is not None:
+            if Methods.clean(message.content).lower() == command:
+                responses = []
+
+            for method in self._meta_methods["settings"]:
+                method_responses = method(message.author, handler_response)
+
+                responses += method_responses if method_responses else []
+
+            return responses

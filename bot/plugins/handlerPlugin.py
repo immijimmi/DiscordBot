@@ -11,6 +11,7 @@ class HandlerPlugin(abc.ABC):
             "user_online": [],
             "user_away": [],
             }
+
         self._meta_methods = {
             "settings": []
         }
