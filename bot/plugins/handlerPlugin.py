@@ -8,7 +8,7 @@ class HandlerPlugin(abc.ABC):
 
         self._event_methods = {
             "on_ready": [],
-            "process_private_message": [self._private_message__settings],
+            "process_private_message": [self._private_message__settings, self._private_message__settings_user],
             "process_public_message": [],
             "user_online": [],
             "user_away": [],
@@ -78,11 +78,14 @@ class HandlerPlugin(abc.ABC):
                 responses = []
 
                 for method in self._meta_methods["settings"]:
-                    method_responses = method(message.author, handler_response)
+                    method_responses = method(message.author.id, handler_response)
 
                     responses += method_responses if method_responses else []
 
                 return responses
+
+    def _private_message__settings_user(self, message, handler_response=None):
+        pass
 
     def _register_paths(self):
         pass

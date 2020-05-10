@@ -21,13 +21,13 @@ class Essentials(HandlerPlugin):
             if Methods.clean(message.content).lower() == command:
                 return self._settings__welcome(message.author, handler_response)
 
-    def _settings__welcome(self, user, handler_response):
+    def _settings__welcome(self, user_id, handler_response):
         settings_string = "**Welcome Message Settings:**" + "\n"
 
-        welcome_status = "enabled" if self.handler.state.registered_get("user_welcome_enabled", [str(user.id)]) else "disabled"
+        welcome_status = "enabled" if self.handler.state.registered_get("user_welcome_enabled", [str(user_id)]) else "disabled"
         settings_string += "status: " + "`" + welcome_status + "`" + "\n"
 
-        timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_welcome_timeout_seconds", [str(user.id)]))
+        timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_welcome_timeout_seconds", [str(user_id)]))
         settings_string += "timeout duration: " + "`" + timeout_duration.to_user_string() + "`"
 
         handler_response.add(settings_string)
@@ -74,8 +74,8 @@ class Essentials(HandlerPlugin):
             if Methods.clean(message.content).lower() == command:
                 return self._settings__nicknames(message.author, handler_response)
 
-    def _settings__nicknames(self, user, handler_response):
-        nicknames = self.handler.state.registered_get("user_nicknames", [str(user.id)])
+    def _settings__nicknames(self, user_id, handler_response):
+        nicknames = self.handler.state.registered_get("user_nicknames", [str(user_id)])
 
         nickname_lines = []
         for target_id_string, target_nickname in nicknames.items():
