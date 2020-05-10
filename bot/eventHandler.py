@@ -145,7 +145,7 @@ class EventHandler():
 
     def try_get_member(self, member_identifier, requester_id=None):
         member_identifier = Methods.clean(str(member_identifier))  # Coalesce types to string only
-        nickname_id_string = str(self.try_get_id_from_nickname(member_identifier, requester_id))
+        nickname_id_string = str(self.try_get_id(member_identifier, requester_id))
         
         member_list = list(self.client.get_all_members())
 
@@ -162,12 +162,23 @@ class EventHandler():
                 if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == member_identifier.lower():
                     return member
 
-    def try_get_id_from_nickname(self, nickname, requester_id):
+    def try_get_id(self, nickname, requester_id):
+        nickname = Methods.clean(nickname)
+
         user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
 
         for nickname_id_string in user_nicknames:
-            if Methods.clean(user_nicknames[nickname_id_string]).lower() == Methods.clean(nickname).lower():
+            if Methods.clean(user_nicknames[nickname_id_string]).lower() == nickname.lower():
                 return int(nickname_id_string)
+
+    def try_get_nickname(self, user_id, requester_id):
+        user_id = Methods.clean(str(user_id))
+
+        user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+
+        for nickname_id_string in user_nicknames:
+            if nickname_id_string == user_id:
+                return user_nicknames[nickname_id_string]
 
     def get_member_name(self, member, requester_id=None):
         if requester_id:
