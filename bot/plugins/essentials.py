@@ -164,30 +164,31 @@ class Essentials(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                user_identifier = Methods.clean(message.content[len(command):])
+                target_identifier = Methods.clean(message.content[len(command):])
 
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
 
-                target = self.handler.try_get_member(user_identifier, requester_id=message.author.id)
-                if target:
+                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
+                if target and str(target.id) in nicknames:
                     target_name = self.handler.get_member_name(target)
 
-                    if str(target.id) in nicknames:
-                        nickname = nicknames[str(target.id)]
+                    nickname = nicknames[str(target.id)]
 
-                        del nicknames[str(target.id)]
-                        self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
+                    del nicknames[str(target.id)]
+                    self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                        handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_name, Methods.clean(nickname)))
-                        return
+                    handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_name, Methods.clean(nickname)))
+                    return
 
-                for nickname_id, nickname in nicknames.items():
-                    if user_identifier.lower() == Methods.clean(nickname).lower() or user_identifier == nickname_id:
-                        del nicknames[nickname_id]
-                        self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
+                nickname_id = self.handler.try_get_nickname_id(target_identifier, requester_id=message.author.id)
+                if nickname_id:
+                    nickname = nicknames[str(nickname_id)]
 
-                        handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, Methods.clean(nickname)))
-                        return
+                    del nicknames[nickname_id]
+                    self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(user_identifier))
+                    handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, Methods.clean(nickname)))
+                    return
+
+                handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
                 return

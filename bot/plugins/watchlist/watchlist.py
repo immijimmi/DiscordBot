@@ -167,18 +167,21 @@ class Watchlist(HandlerPlugin):
                     if target.id in watchlist:
                         self.__remove_watchlist_user(message.author.id, target.id)
                         handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_name))
+                        return
 
                     else:
                         handler_response.add("{0} is not in your watchlist.".format(target_name))
+                        return
 
-                elif target_identifier in [str(target_id) for target_id in watchlist]:
-                    target_id = int(target_identifier)
-
-                    self.__remove_watchlist_user(message.author.id, target_id)
+                nickname_id = self.handler.try_get_nickname_id(target_identifier, requester_id=message.author.id)
+                if nickname_id in watchlist:
+                    self.__remove_watchlist_user(message.author.id, nickname_id)
                     handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_identifier))
+                    return
 
                 else:
                     handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
+                    return
 
     def __remove_watchlist_user(self, author_id, target_id):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(author_id)])
@@ -211,9 +214,11 @@ class Watchlist(HandlerPlugin):
                     self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
             else:
+                target_nickname = self.handler.try_get_nickname(target_id, requester_id=user_id)
+
                 target_statuses["unknown"] = target_statuses.get("unknown", []) + ["{0} {1} ({2})".format(
                     SymbolLookup.status["unknown"],
-                    target_id,
+                    target_nickname if target_nickname else target_id,
                     PluginMessageFormats.placeholder__cannot_find_user
                 )]
 
