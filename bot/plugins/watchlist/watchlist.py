@@ -49,7 +49,7 @@ class Watchlist(HandlerPlugin):
             watcher_watchlist = self.handler.state.registered_get("user_watchlist", [watcher_id_string])
 
             if after.id in watcher_watchlist:
-                watcher = self.handler.get_member(int(watcher_id_string))
+                watcher = self.handler.try_get_member(int(watcher_id_string))
                 setting_enabled = self.handler.state.registered_get("user_watchlist_alerts_enabled", [watcher_id_string])
 
                 if watcher and (watcher.status == Status.online) and setting_enabled:
@@ -135,7 +135,7 @@ class Watchlist(HandlerPlugin):
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
                 target_identifier = Methods.clean(message.content[len(command):])
-                target = self.handler.get_member(target_identifier, requester_id=message.author.id)
+                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
 
                 if target:
                     target_name = self.handler.get_member_name(target, requester_id=message.author.id)
@@ -157,7 +157,7 @@ class Watchlist(HandlerPlugin):
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
                 target_identifier = Methods.clean(message.content[len(command):])
-                target = self.handler.get_member(target_identifier, requester_id=message.author.id)
+                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
                 
                 watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
@@ -195,7 +195,7 @@ class Watchlist(HandlerPlugin):
         target_statuses = {}
 
         for target_id in watchlist:
-            target = self.handler.get_member(target_id)
+            target = self.handler.try_get_member(target_id)
 
             if target:
                 target_name = self.handler.get_member_name(target, requester_id=user_id)

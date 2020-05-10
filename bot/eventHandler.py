@@ -143,24 +143,31 @@ class EventHandler():
         await self._send_responses(responses)
         await self._run_callbacks()
 
-    def get_member(self, member_identifier, requester_id=None):
-        member_identifier = str(member_identifier)  # Coalesce types to string only
+    def try_get_member(self, member_identifier, requester_id=None):
+        member_identifier = Methods.clean(str(member_identifier))  # Coalesce types to string only
+        nickname_id_string = str(self.try_get_id_from_nickname(member_identifier, requester_id))
         
-        if requester_id:
-            user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+        member_list = list(self.client.get_all_members())
 
-            for nickname_id_string in user_nicknames:
-                if Methods.clean(user_nicknames[nickname_id_string]).lower() == Methods.clean(member_identifier).lower():
-                    member_identifier = nickname_id_string
-                    break
-        
-        for member in self.client.get_all_members():  # Returns None if the member cannot be found
-            if str(member.id) == Methods.clean(member_identifier):
+        if nickname_id_string:
+            for member in member_list:
+                if str(member.id) == nickname_id_string:
+                    return member
+
+        for member in member_list:
+            if str(member.id) == member_identifier:
                 return member
 
-            elif "#" in member_identifier:
-                if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == Methods.clean(member_identifier).lower():
+            if "#" in member_identifier:
+                if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == member_identifier.lower():
                     return member
+
+    def try_get_id_from_nickname(self, nickname, requester_id):
+        user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+
+        for nickname_id_string in user_nicknames:
+            if Methods.clean(user_nicknames[nickname_id_string]).lower() == Methods.clean(nickname).lower():
+                return int(nickname_id_string)
 
     def get_member_name(self, member, requester_id=None):
         if requester_id:

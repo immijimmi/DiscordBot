@@ -79,7 +79,7 @@ class Essentials(HandlerPlugin):
 
         nickname_lines = []
         for target_id_string, target_nickname in nicknames.items():
-            target = self.handler.get_member(target_id_string)
+            target = self.handler.try_get_member(target_id_string)
             target_name = self.handler.get_member_name(target) if target else MessageFormats.placeholder__cannot_find_user
 
             nickname_lines.append("- {0} ({1})".format(Methods.clean(target_nickname), target_name))
@@ -104,7 +104,7 @@ class Essentials(HandlerPlugin):
                 target_identifier_string = target_identifier_string[:separator_index]
                 target_nickname = arguments_string[separator_index+len(Arguments.nickname_separator):]
 
-                if self.handler.get_member(target_identifier_string, requester_id=message.author.id):  # If a member can be found from a substring, one of the separators must be part of the nickname
+                if self.handler.try_get_member(target_identifier_string, requester_id=message.author.id):  # If a member can be found from a substring, one of the separators must be part of the nickname
                     result.append((Methods.clean(target_identifier_string), Methods.clean(target_nickname)))
 
                 separator_index = target_identifier_string.rfind(Arguments.nickname_separator)
@@ -144,7 +144,7 @@ class Essentials(HandlerPlugin):
                     return
 
                 target_identifier_string, target_nickname = valid_possible_arguments[0]
-                target = self.handler.get_member(target_identifier_string, requester_id=message.author.id)
+                target = self.handler.try_get_member(target_identifier_string, requester_id=message.author.id)
                 if not target:  # Added for redundancy
                     handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier_string))
                     return
@@ -168,7 +168,7 @@ class Essentials(HandlerPlugin):
 
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
 
-                target = self.handler.get_member(user_identifier, requester_id=message.author.id)
+                target = self.handler.try_get_member(user_identifier, requester_id=message.author.id)
                 if target:
                     target_name = self.handler.get_member_name(target)
 
