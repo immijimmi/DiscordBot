@@ -19,7 +19,7 @@ class Essentials(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                return self._settings__welcome(message.author, handler_response)
+                return self._settings__welcome(message.author.id, handler_response)
 
     def _settings__welcome(self, user_id, handler_response):
         settings_string = "**Welcome Message Settings:**" + "\n"
@@ -72,7 +72,7 @@ class Essentials(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                return self._settings__nicknames(message.author, handler_response)
+                return self._settings__nicknames(message.author.id, handler_response)
 
     def _settings__nicknames(self, user_id, handler_response):
         nicknames = self.handler.state.registered_get("user_nicknames", [str(user_id)])

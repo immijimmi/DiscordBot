@@ -74,7 +74,7 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                return self._settings__watchlist(message.author, handler_response)
+                return self._settings__watchlist(message.author.id, handler_response)
 
     def _settings__watchlist(self, user_id, handler_response):
         watchlist_statuses = self.__user_watchlist_status_strings(user_id)
