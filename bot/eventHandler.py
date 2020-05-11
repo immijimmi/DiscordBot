@@ -171,19 +171,21 @@ class EventHandler():
             if Methods.clean(user_nickname).lower() == nickname.lower():
                 return int(nickname_id_string)
 
-        # Matching by ID is lower priority than by nickname so has its own loop after the above
-        for nickname_id_string in user_nicknames:
-            if nickname_id_string == nickname:
-                return int(nickname_id_string)
+        # Matching by ID is lower priority than by nickname so has its own check after the above
+        if nickname in user_nicknames:
+            return int(nickname)
 
     def try_get_nickname(self, user_id, requester_id):
         user_id = Methods.clean(str(user_id))
 
         user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
 
-        for nickname_id_string in user_nicknames:
-            if nickname_id_string == user_id:
-                return user_nicknames[nickname_id_string]
+        if user_id in user_nicknames:
+            return user_nicknames[user_id]
+
+        # Matching by nickname is lower priority than by ID so has its own check after the above
+        if user_id in user_nicknames.values():
+            return user_id
 
     def get_member_name(self, member, requester_id=None):
         if requester_id:
