@@ -49,7 +49,7 @@ class Watchlist(HandlerPlugin):
             watcher_watchlist = self.handler.state.registered_get("user_watchlist", [watcher_id_string])
 
             if after.id in watcher_watchlist:
-                watcher = self.handler.try_get_member(int(watcher_id_string))
+                watcher = self.handler.try_get_member(int(watcher_id_string), requester_id=None)
                 setting_enabled = self.handler.state.registered_get("user_watchlist_alerts_enabled", [watcher_id_string])
 
                 if watcher and (watcher.status == Status.online) and setting_enabled:
@@ -60,7 +60,7 @@ class Watchlist(HandlerPlugin):
                     if timeout_triggered:
                         response = MessageBuilder([watcher])
                         response.add(
-                            MessageFormats.watchlist_user_online__name.format(self.handler.get_member_name(after, requester_id=watcher.id))
+                            MessageFormats.watchlist_user_online__name.format(self.handler.try_get_member_name(after.id, requester_id=watcher.id))
                         )
                     else:
                         response=None
@@ -138,7 +138,7 @@ class Watchlist(HandlerPlugin):
                 target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
 
                 if target:
-                    target_name = self.handler.get_member_name(target, requester_id=message.author.id)
+                    target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
                     watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
                     if target.id in watchlist:
@@ -157,27 +157,21 @@ class Watchlist(HandlerPlugin):
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
                 target_identifier = Methods.clean(message.content[len(command):])
-                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
+                target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
                 
                 watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
-                if target:
-                    target_name = self.handler.get_member_name(target, requester_id=message.author.id)
+                if target_id:
+                    target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id)
 
-                    if target.id in watchlist:
-                        self.__remove_watchlist_user(message.author.id, target.id)
+                    if target_id in watchlist:
+                        self.__remove_watchlist_user(message.author.id, target_id)
                         handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_name))
                         return
 
                     else:
                         handler_response.add("{0} is not in your watchlist.".format(target_name))
                         return
-
-                nickname_id = self.handler.try_get_nickname_id(target_identifier, requester_id=message.author.id)
-                if nickname_id in watchlist:
-                    self.__remove_watchlist_user(message.author.id, nickname_id)
-                    handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_identifier))
-                    return
 
                 else:
                     handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
@@ -198,10 +192,10 @@ class Watchlist(HandlerPlugin):
         target_statuses = {}
 
         for target_id in watchlist:
-            target = self.handler.try_get_member(target_id)
+            target = self.handler.try_get_member(target_id, requester_id=None)
+            target_name = self.handler.try_get_member_name(target_id, requester_id=user_id) or target_id
 
             if target:
-                target_name = self.handler.get_member_name(target, requester_id=user_id)
                 target_status_message = SymbolLookup.status[target.status] + " " + target_name
                 
                 target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
@@ -214,11 +208,9 @@ class Watchlist(HandlerPlugin):
                     self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
             else:
-                target_nickname = self.handler.try_get_nickname(target_id, requester_id=user_id)
-
                 target_statuses["unknown"] = target_statuses.get("unknown", []) + ["{0} {1} ({2})".format(
                     SymbolLookup.status["unknown"],
-                    target_nickname if target_nickname else target_id,
+                    target_name,
                     PluginMessageFormats.placeholder__cannot_find_user
                 )]
 

@@ -79,10 +79,9 @@ class Essentials(HandlerPlugin):
 
         nickname_lines = []
         for target_id_string, target_nickname in nicknames.items():
-            target = self.handler.try_get_member(target_id_string)
-            target_name = self.handler.get_member_name(target) if target else MessageFormats.placeholder__cannot_find_user
+            target_discord_name = self.handler.try_get_member_name(target_id_string, requester_id=None) or MessageFormats.placeholder__cannot_find_user
 
-            nickname_lines.append("- {0} ({1})".format(Methods.clean(target_nickname), target_name))
+            nickname_lines.append("- {0} ({1})".format(Methods.clean(target_nickname), target_discord_name))
 
         if nickname_lines:
             nicknames_string = "**Nicknames:**" + "\n"
@@ -157,7 +156,7 @@ class Essentials(HandlerPlugin):
 
                 nicknames[str(target.id)] = target_nickname
                 self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
-                handler_response.add("{0} has been set as your nickname for {1}.".format(target_nickname, self.handler.get_member_name(target)))
+                handler_response.add("{0} has been set as your nickname for {1}.".format(target_nickname, self.handler.try_get_member_name(target.id, requester_id=None)))
 
     def _private_message__nicknames_remove(self, message, handler_response=None):
         command = "!nicknames remove "
@@ -166,29 +165,22 @@ class Essentials(HandlerPlugin):
             if message.content[:len(command)].lower() == command:
                 target_identifier = Methods.clean(message.content[len(command):])
 
+                target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
+                if not target_id:
+                    handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
+                    return
+
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
-
-                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
-                if target and str(target.id) in nicknames:
-                    target_name = self.handler.get_member_name(target)
-
+                if str(target_id) in nicknames:
+                    target_discord_name = self.handler.try_get_member_name(target_id, requester_id=None)
                     nickname = nicknames[str(target.id)]
 
                     del nicknames[str(target.id)]
                     self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
-                    handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_name, Methods.clean(nickname)))
+                    handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_discord_name, nickname))
                     return
 
-                nickname_id = self.handler.try_get_nickname_id(target_identifier, requester_id=message.author.id)
-                if nickname_id:
-                    nickname = nicknames[str(nickname_id)]
-
-                    del nicknames[nickname_id]
-                    self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
-
-                    handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(nickname_id, Methods.clean(nickname)))
+                else:
+                    handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
                     return
-
-                handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
-                return

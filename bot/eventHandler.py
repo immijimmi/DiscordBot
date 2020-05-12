@@ -145,56 +145,77 @@ class EventHandler():
 
     def try_get_member(self, member_identifier, requester_id=None):
         member_identifier = Methods.clean(str(member_identifier))  # Coalesce types to string only
-        nickname_id_string = str(self.try_get_nickname_id(member_identifier, requester_id))
+
+        # Look through requester nicknames for a match
+        if requester_id:
+            user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+            for nickname_id_string, user_nickname in user_nicknames.items():
+                if Methods.clean(user_nickname).lower() == member_identifier.lower():
+                    member_identifier = nickname_id_string
+                    break
         
+        # Direct ID match first
         member_list = list(self.client.get_all_members())
-
-        if nickname_id_string:
-            for member in member_list:
-                if str(member.id) == nickname_id_string:
-                    return member
-
         for member in member_list:
             if str(member.id) == member_identifier:
                 return member
 
-            if "#" in member_identifier:
+        # Username#discriminator match next
+        if "#" in member_identifier:
+            for member in member_list:
                 if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == member_identifier.lower():
                     return member
 
-    def try_get_nickname_id(self, nickname, requester_id):
-        nickname = Methods.clean(nickname)
+    def try_get_member_id(self, member_identifier, requester_id=None):
+        """
+        Guaranteed to return an non-empty result if the bot has access to the member in question via self.try_get_member
+        """
 
-        user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+        member_identifier = Methods.clean(str(member_identifier))  # Coalesce types to string only
 
-        for nickname_id_string, user_nickname in user_nicknames.items():
-            if Methods.clean(user_nickname).lower() == nickname.lower():
-                return int(nickname_id_string)
-
-        # Matching by ID is lower priority than by nickname so has its own check after the above
-        if nickname in user_nicknames:
-            return int(nickname)
-
-    def try_get_nickname(self, user_id, requester_id):
-        user_id = Methods.clean(str(user_id))
-
-        user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
-
-        if user_id in user_nicknames:
-            return user_nicknames[user_id]
-
-        # Matching by nickname is lower priority than by ID so has its own check after the above
-        if user_id in user_nicknames.values():
-            return user_id
-
-    def get_member_name(self, member, requester_id=None):
+        # Look through requester nicknames for a match
         if requester_id:
             user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+            for nickname_id_string, user_nickname in user_nicknames.items():
+                if Methods.clean(user_nickname).lower() == member_identifier.lower():
+                    return int(nickname_id_string)
 
-            if str(member.id) in user_nicknames:
-                return Methods.clean(user_nicknames[str(member.id)])
+            # Matching by ID is lower priority than by nickname so has its own check after the above
+            if member_identifier in user_nicknames:
+                return int(member_identifier)
 
-        return Methods.clean("{0}#{1}".format(member.name, member.discriminator))
+        member = self.try_get_member(member_identifier, requester_id=requester_id)
+        if member:
+            return member.id
+
+    def try_get_member_name(self, member_id, requester_id=None):
+        """
+        Guaranteed to return an non-empty result if the bot has access to the member in question via self.try_get_member
+        """
+
+        nickname = self.try_get_nickname(member_id, requester_id=requester_id)
+        if nickname:
+            return nickname
+
+        member = self.try_get_member(member_id, requester_id=requester_id)
+        if member:
+            return Methods.clean("{0}#{1}".format(member.name, member.discriminator))
+
+    def try_get_nickname(self, member_id, requester_id):
+        """
+        Nickname lookup ONLY - does not attempt to find a matching user
+        """
+
+        member_id = Methods.clean(str(member_id))  # Coalesce types to string only
+
+        user_nicknames = self.state.registered_get("user_nicknames", [str(requester_id)])
+
+        if member_id in user_nicknames:
+            return user_nicknames[member_id]
+
+        # Matching by nickname is lower priority than by ID so has its own check after the above
+        if member_id in user_nicknames.values():
+            return member_id
 
     async def _run_callbacks(self):
         while self._callbacks:
