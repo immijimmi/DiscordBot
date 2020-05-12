@@ -173,9 +173,9 @@ class Essentials(HandlerPlugin):
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
                 if str(target_id) in nicknames:
                     target_discord_name = self.handler.try_get_member_name(target_id, requester_id=None)
-                    nickname = nicknames[str(target.id)]
+                    nickname = nicknames[str(target_id)]
 
-                    del nicknames[str(target.id)]
+                    del nicknames[str(target_id)]
                     self.handler.state.registered_set(nicknames, "user_nicknames", [str(message.author.id)])
 
                     handler_response.add(MessageFormats.nickname_deleted__name_nickname.format(target_discord_name, nickname))
