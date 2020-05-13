@@ -214,8 +214,9 @@ class EventHandler():
             return user_nicknames[member_id]
 
         # Matching by nickname is lower priority than by ID so has its own check after the above
-        if member_id.lower() in [nick.lower() for nick in user_nicknames.values()]:
-            return member_id
+        for nickname in user_nicknames.values():
+            if member_id.lower() == nickname.lower():
+                return nickname
 
     async def _run_callbacks(self):
         while self._callbacks:
