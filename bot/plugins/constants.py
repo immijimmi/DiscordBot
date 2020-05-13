@@ -62,6 +62,15 @@ class MessageFormats:
             }],
             "children": {}
         },
+        "!reboot": {
+            "usage": [{
+                "permissions": [Permissions(Permissions.level_admin, [])],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": [],
+                "description": "updates the code base and reboots the machine the bot is running on"
+            }],
+            "children": {}
+        },
         "!users": {
             "usage": [{
                 "permissions": [Permissions(Permissions.level_admin, [])],
@@ -150,15 +159,6 @@ class MessageFormats:
                     "children": {}
                 }
             }
-        },
-        "!reboot": {
-            "usage": [{
-                "permissions": [Permissions(Permissions.level_admin, [])],
-                "visibility": SymbolLookup.visibility["private"],
-                "arguments": [],
-                "description": "updates the code base and reboots the machine the bot is running on"
-            }],
-            "children": {}
         },
         "!nicknames": {
             "usage": [{
