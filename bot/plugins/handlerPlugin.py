@@ -1,6 +1,8 @@
 import abc
 
+from ..classes.permissions import Permissions
 from ..constants import Methods
+from .constants import MessageFormats
 
 class HandlerPlugin(abc.ABC):
     def __init__(self, handler):
@@ -85,7 +87,41 @@ class HandlerPlugin(abc.ABC):
                 return responses
 
     def _private_message__settings_user(self, message, handler_response=None):
-        pass
+        command = "!settings "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                required_permissions_options = [Permissions(Permissions.level_admin, [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
+
+                if user_permissions.is_permitted(*required_permissions_options):
+                    target_identifier = Methods.clean(message.content[len(command):])
+
+                    all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
+
+                    target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
+                    if not target_id:
+                        if not handler_response:
+                            handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
+                        return
+
+                    target_name = self.handler.try_get_member_name(target_identifier, requester_id=message.author.id) or target_id
+
+                    if str(target_id) not in all_saved_users:
+                        if not handler_response:
+                            handler_response.add("No settings found for {0}.".format(target_name))
+                        return
+
+                    handler_response.title = "**Settings for User:** {0}".format(target_name)
+
+                    responses = []
+
+                    for method in self._meta_methods["settings"]:
+                        method_responses = method(target_id, handler_response)
+
+                        responses += method_responses if method_responses else []
+
+                    return responses
 
     def _register_paths(self):
         pass
