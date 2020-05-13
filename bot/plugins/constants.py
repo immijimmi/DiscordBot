@@ -62,12 +62,26 @@ class MessageFormats:
             }],
             "children": {}
         },
+        "!users": {
+            "usage": [{
+                "permissions": [Permissions(Permissions.level_admin, [])],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": [],
+                "description": "provides a list of users who have saved settings"
+            }],
+            "children": {}
+        },
         "!settings": {
             "usage": [{
                 "permissions": [Defaults.permissions],
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
-                "description": "displays all settings"
+                "description": "displays all your settings"
+            }, {
+                "permissions": [Permissions(Permissions.level_admin, [])],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": ["username#ID, Discord ID or nickname"],
+                "description": "displays all the specified user's settings"
             }],
             "children": {}
         },
@@ -112,7 +126,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [Defaults.permissions],
                         "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["username#ID or Discord ID"],
+                        "arguments": ["username#ID, Discord ID or nickname"],
                         "description": "adds the specified user to your watchlist"
                     }],
                     "children": {}
@@ -121,7 +135,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [Defaults.permissions],
                         "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["username#ID or Discord ID"],
+                        "arguments": ["username#ID, Discord ID or nickname"],
                         "description": "removes the specified user from your watchlist"
                     }],
                     "children": {}
@@ -158,7 +172,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [Defaults.permissions],
                         "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["username#ID or Discord ID`{0}`nickname".format(Arguments.nickname_separator)],
+                        "arguments": ["username#ID, Discord ID or nickname`{0}`new nickname".format(Arguments.nickname_separator)],
                         "description": "registers your nickname to the specified user"
                     }],
                     "children": {}
