@@ -28,6 +28,7 @@ class SymbolLookup:
 class MessageFormats:
     note__user_visibility = "*Note: I am only able to see users that I share a server with.*"
     note__timeout_duration = "*Note: Timeout duration must be a number of seconds between 1 and {0}.*".format(TimeoutDuration.max_seconds)
+    note__no_nicknames = "*No nicknames set.*"
 
     placeholder__cannot_find_user = "unable to find user"
 

@@ -87,7 +87,7 @@ class Essentials(HandlerPlugin):
             nicknames_string = "**Nicknames:**" + "\n"
             nicknames_string += "\n".join(nickname_lines)
         else:
-            nicknames_string = "You have not set any nicknames."
+            nicknames_string = MessageFormats.note__no_nicknames
 
         handler_response.add(nicknames_string)
 
