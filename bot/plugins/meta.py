@@ -10,7 +10,7 @@ class Meta(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["process_private_message"] += [self._private_message__reboot, self._private_message__help, self._private_message__settings]
+        self._event_methods["process_private_message"] += [self._private_message__reboot, self._private_message__help, self._private_message__settings, self._private_message__users]
 
     def _private_message__reboot(self, message, handler_response=None):
         async def update_and_restart():
@@ -68,3 +68,23 @@ class Meta(HandlerPlugin):
 
                 handler_response.title = key_string
                 handler_response.add("\n".join(build_command_list(MessageFormats.commands, user_permissions)))
+
+    def _private_message__users(self, message, handler_response=None):
+        command = "!users"
+
+        if handler_response is not None:
+            if Methods.clean(message.content).lower() == command:
+                required_permissions_options = [Permissions(Permissions.level_admin, [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
+
+                if user_permissions.is_permitted(*required_permissions_options):
+                    all_saved_users = [user_id_string for user_id_string in self.handler.state.registered_get("all_users_settings")]
+                    names = [self.handler.try_get_member_name(user_id_string, requester_id=message.author.id) or user_id_string for user_id_string in all_saved_users]
+
+                    if not names:
+                        handler_response.add(MessageFormats.note__no_bot_users)
+                        return
+
+                    handler_response.title = "**User List:**"
+                    handler_response.add("\n".join(["- {0}".format(name) for name in names]))
+                    return
