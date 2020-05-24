@@ -153,7 +153,7 @@ class EventHandler():
                 if Methods.clean(user_nickname).lower() == member_identifier.lower():
                     member_identifier = nickname_id_string
                     break
-        
+
         # Direct ID match first
         member_list = list(self.client.get_all_members())
         for member in member_list:
@@ -165,6 +165,14 @@ class EventHandler():
             for member in member_list:
                 if Methods.clean("{0}#{1}".format(member.name, member.discriminator)).lower() == member_identifier.lower():
                     return member
+
+        # Display name match - if the input may be a display name, a list check should be done on the return value
+        matches = {}
+        for member in member_list:
+            if Methods.clean(member.name).lower() == member_identifier.lower() or Methods.clean(member.nick).lower() == member_identifier.lower():
+                matches[member.id] = member
+        if matches:
+            return list(matches.values())[0] if len(matches) == 1 else list(matches.values())
 
     def try_get_member_id(self, member_identifier, requester_id=None):
         """
@@ -185,7 +193,9 @@ class EventHandler():
                 return int(member_identifier)
 
         member = self.try_get_member(member_identifier, requester_id=requester_id)
-        if member:
+        if type(member) is list:
+            return [result.id for result in member]
+        elif member:
             return member.id
 
     def try_get_member_name(self, member_id, requester_id=None):
@@ -198,13 +208,18 @@ class EventHandler():
             return nickname
 
         member = self.try_get_member(member_id, requester_id=requester_id)
-        if member:
+        if type(member) is list:
+            return [Methods.clean("{0}#{1}".format(result.name, result.discriminator)) for result in member]
+        elif member:
             return Methods.clean("{0}#{1}".format(member.name, member.discriminator))
 
     def try_get_nickname(self, member_id, requester_id):
         """
         Nickname lookup ONLY - does not attempt to find a matching user
         """
+
+        if type(member_id) is list:
+            raise TypeError  # Prevents list results returned by the try_get_member methods from being passed directly in
 
         member_id = Methods.clean(str(member_id))  # Coalesce types to string only
 

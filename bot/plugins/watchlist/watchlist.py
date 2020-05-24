@@ -137,19 +137,24 @@ class Watchlist(HandlerPlugin):
                 target_identifier = Methods.clean(message.content[len(command):])
                 target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
 
-                if target:
-                    target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
-                    watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
+                if not target:
+                    handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
+                    return
+                elif type(target) is list:
+                    handler_response.add(PluginMessageFormats.multiple_user_matches)
+                    return
 
-                    if target.id in watchlist:
-                        handler_response.add("{0} is already in your watchlist.".format(target_name))
+                target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
+                watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
-                    else:
-                        self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
-                        handler_response.add("{0} has been added to your watchlist.".format(target_name))
+                if target.id in watchlist:
+                    handler_response.add("{0} is already in your watchlist.".format(target_name))
+                    return
 
                 else:
-                    handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
+                    self.handler.state.registered_set(watchlist + [target.id], "user_watchlist", [str(message.author.id)])
+                    handler_response.add("{0} has been added to your watchlist.".format(target_name))
+                    return
 
     def _private_message__watchlist_remove(self, message, handler_response=None):
         command = "!watchlist remove "
@@ -161,20 +166,22 @@ class Watchlist(HandlerPlugin):
                 
                 watchlist = self.handler.state.registered_get("user_watchlist", [str(message.author.id)])
 
-                if target_id:
-                    target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id)
+                if not target_id:
+                    handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
+                    return
+                elif type(target_id) is list:
+                    handler_response.add(PluginMessageFormats.multiple_user_matches)
+                    return
 
-                    if target_id in watchlist:
-                        self.__remove_watchlist_user(message.author.id, target_id)
-                        handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_name))
-                        return
+                target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id)
 
-                    else:
-                        handler_response.add("{0} is not in your watchlist.".format(target_name))
-                        return
+                if target_id in watchlist:
+                    self.__remove_watchlist_user(message.author.id, target_id)
+                    handler_response.add(MessageFormats.watchlist_user_removed__name.format(target_name))
+                    return
 
                 else:
-                    handler_response.add(PluginMessageFormats.cannot_find_user__identifier.format(target_identifier))
+                    handler_response.add("{0} is not in your watchlist.".format(target_name))
                     return
 
     def __remove_watchlist_user(self, author_id, target_id):

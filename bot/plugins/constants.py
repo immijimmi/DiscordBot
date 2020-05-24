@@ -33,6 +33,7 @@ class MessageFormats:
 
     placeholder__cannot_find_user = "unable to find user"
 
+    multiple_user_matches = "More than one user matches the provided name."
     cannot_find_user = "Unable to find a user based on the provided name." + "\n" + note__user_visibility
     cannot_find_user__identifier = "Unable to find a user based on the name: " + HandlerMessageFormats.format__user_input + "\n" + note__user_visibility
     cannot_parse__timeout_string = "Unable to get a timeout duration from the provided value: " + HandlerMessageFormats.format__user_input + "\n" + note__timeout_duration

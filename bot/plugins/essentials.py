@@ -147,6 +147,9 @@ class Essentials(HandlerPlugin):
                 if not target:  # Added for redundancy
                     handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier_string))
                     return
+                elif type(target) is list:
+                    handler_response.add(MessageFormats.multiple_user_matches)
+                    return
 
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])
                 for nickname in nicknames.values():
@@ -168,6 +171,9 @@ class Essentials(HandlerPlugin):
                 target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
                 if not target_id:
                     handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
+                    return
+                elif type(target_id) is list:
+                    handler_response.add(MessageFormats.multiple_user_matches)
                     return
 
                 nicknames = self.handler.state.registered_get("user_nicknames", [str(message.author.id)])

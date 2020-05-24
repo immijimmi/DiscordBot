@@ -104,8 +104,12 @@ class HandlerPlugin(abc.ABC):
                         if not handler_response:
                             handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
                         return
+                    elif type(target_id) is list:
+                        if not handler_response:
+                            handler_response.add(MessageFormats.multiple_user_matches)
+                        return
 
-                    target_name = self.handler.try_get_member_name(target_identifier, requester_id=message.author.id) or target_id
+                    target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id) or target_id
 
                     if str(target_id) not in all_saved_users:
                         if not handler_response:
