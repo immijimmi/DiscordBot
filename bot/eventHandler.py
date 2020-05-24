@@ -169,7 +169,7 @@ class EventHandler():
         # Display name match - if the input may be a display name, a list check should be done on the return value
         matches = {}
         for member in member_list:
-            if Methods.clean(member.name).lower() == member_identifier.lower() or Methods.clean(member.nick).lower() == member_identifier.lower():
+            if Methods.clean(member.name).lower() == member_identifier.lower() or Methods.clean(member.display_name).lower() == member_identifier.lower():
                 matches[member.id] = member
         if matches:
             return list(matches.values())[0] if len(matches) == 1 else list(matches.values())
