@@ -35,7 +35,7 @@ class Watchlist(HandlerPlugin):
 
     def _welcome__watchlist(self, before, after, handler_response=None):
         if handler_response is not None:
-            watchlist_statuses = self.__user_watchlist_status_strings(after.id)
+            watchlist_statuses = self.__user_watchlist_status_strings(after.id, reset_timeouts=True)
             
             if watchlist_statuses:
                 handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses))
@@ -74,10 +74,10 @@ class Watchlist(HandlerPlugin):
 
         if handler_response is not None:
             if Methods.clean(message.content).lower() == command:
-                return self._settings__watchlist(message.author.id, handler_response)
+                return self._settings__watchlist(message.author.id, handler_response, reset_timeouts=True)
 
-    def _settings__watchlist(self, user_id, handler_response):
-        watchlist_statuses = self.__user_watchlist_status_strings(user_id)
+    def _settings__watchlist(self, user_id, handler_response, reset_timeouts=False):
+        watchlist_statuses = self.__user_watchlist_status_strings(user_id, reset_timeouts=reset_timeouts)
 
         if watchlist_statuses:
             handler_response.add(MessageFormats.title__watchlist_private + "\n" + "\n".join(watchlist_statuses))
@@ -192,7 +192,7 @@ class Watchlist(HandlerPlugin):
 
         self.handler.state.registered_set(list(filter(lambda user_id: user_id != target_id, watchlist)), "user_watchlist", [str(author_id)])
 
-    def __user_watchlist_status_strings(self, user_id):
+    def __user_watchlist_status_strings(self, user_id, reset_timeouts=False):
         watchlist = self.handler.state.registered_get("user_watchlist", [str(user_id)])
         result = []
 
@@ -207,12 +207,13 @@ class Watchlist(HandlerPlugin):
                 
                 target_statuses[target.status] = target_statuses.get(target.status, []) + [target_status_message]
 
-                alert_key = EventKeys.watchlist_alerts.format(user_id, target.id)
-                self.handler.try_delete_timeout(alert_key)  # Reset recipient's timeouts
+                if reset_timeouts:
+                    alert_key = EventKeys.watchlist_alerts.format(user_id, target.id)
+                    self.handler.try_delete_timeout(alert_key)  # Reset recipient's timeouts
 
-                if target.status == Status.online:  # Trigger fresh online alert timeouts for the recipient, for any users that this message will show as online
-                    new_timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(user_id)]))
-                    self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
+                    if target.status == Status.online:  # Trigger fresh online alert timeouts for the recipient, for any users that this message will show as online
+                        new_timeout_duration = TimeoutDuration(self.handler.state.registered_get("user_watchlist_alert_timeout_seconds", [str(user_id)]))
+                        self.handler.try_trigger_timeout(alert_key, new_timeout_duration)
 
             else:
                 target_statuses["unknown"] = target_statuses.get("unknown", []) + ["{0} {1} ({2})".format(
