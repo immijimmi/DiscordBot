@@ -66,6 +66,15 @@ class MessageFormats:
             }],
             "children": {}
         },
+        "!introduce": {
+            "usage": [{
+                "permissions": [Permissions(Permissions.levels["admin"], [])],
+                "visibility": SymbolLookup.visibility["private"],
+                "arguments": ["Discord username, ID or nickname"],
+                "description": "sends a greeting message from the bot to the selected user"
+            }],
+            "children": {}
+        },
         "!reboot": {
             "usage": [{
                 "permissions": [Permissions(Permissions.levels["admin"], [])],
