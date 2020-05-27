@@ -42,7 +42,7 @@ class MessageFormats:
     nickname_deleted__name_nickname = "Deleted nickname for {0} ({1})."
     cannot_find_nickname__identifier = "No nickname found based on the name: " + HandlerMessageFormats.format__user_input
 
-    introductions__display_name = ["Waddup {0}!"]
+    introductions__username = ["Waddup {0}!"]
 
     _command_template = {
         "": {
