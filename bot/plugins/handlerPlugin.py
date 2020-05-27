@@ -20,6 +20,8 @@ class HandlerPlugin(abc.ABC):
             "settings": []
         }
 
+        self.permissions_tags = []
+
         self._register_paths()
 
     def on_ready(self, handler_response=None):

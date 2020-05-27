@@ -1,4 +1,5 @@
 from ..classes.timeoutDuration import TimeoutDuration
+from ..classes.permissions import Permissions
 from ..constants import Methods, MessageFormats as HandlerMessageFormats
 from .constants import MessageFormats, Arguments
 from .handlerPlugin import HandlerPlugin
@@ -190,3 +191,6 @@ class Essentials(HandlerPlugin):
                 else:
                     handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
                     return
+    
+    def __is_permissions_tag(self, tag):
+        return tag in Permissions.tags or any(tag in plugin.permissions_tags for plugin in self.handler.plugins)
