@@ -1,10 +1,16 @@
 class Permissions:
-    level_none = 0
-    level_admin = 1
+    levels = {
+        "none": 0,
+        "admin": 1
+    }
+    tags = []  # Plugin-specific tags should be added to this list inside the plugin constructor
 
     def __init__(self, level, tags):
         self.level = level
         self.tags = list(tags)
+
+    def __str__(self):
+        return "Level: {0}; Tags: {1}".format(self.level, ", ".join(self.tags))
 
     def __eq__(self, other):
         self_tags_sorted = sorted(self.tags)

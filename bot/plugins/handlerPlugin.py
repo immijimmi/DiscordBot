@@ -91,7 +91,7 @@ class HandlerPlugin(abc.ABC):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                required_permissions_options = [Permissions(Permissions.level_admin, [])]
+                required_permissions_options = [Permissions(Permissions.levels["admin"], [])]
                 user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
 
                 if user_permissions.is_permitted(*required_permissions_options):

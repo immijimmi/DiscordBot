@@ -11,7 +11,7 @@ class Defaults:
 
     timeout_duration = TimeoutDuration(1)
 
-    permissions = Permissions(Permissions.level_none, [])
+    permissions = Permissions(Permissions.levels["none"], [])
 
 class Methods:
     @staticmethod

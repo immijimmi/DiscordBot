@@ -68,7 +68,7 @@ class MessageFormats:
         },
         "!reboot": {
             "usage": [{
-                "permissions": [Permissions(Permissions.level_admin, [])],
+                "permissions": [Permissions(Permissions.levels["admin"], [])],
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
                 "description": "updates the code base and reboots the machine the bot is running on"
@@ -77,7 +77,7 @@ class MessageFormats:
         },
         "!users": {
             "usage": [{
-                "permissions": [Permissions(Permissions.level_admin, [])],
+                "permissions": [Permissions(Permissions.levels["admin"], [])],
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": [],
                 "description": "provides a list of users who have saved settings"
@@ -91,7 +91,7 @@ class MessageFormats:
                 "arguments": [],
                 "description": "displays all your settings"
             }, {
-                "permissions": [Permissions(Permissions.level_admin, [])],
+                "permissions": [Permissions(Permissions.levels["admin"], [])],
                 "visibility": SymbolLookup.visibility["private"],
                 "arguments": ["Discord username, ID or nickname"],
                 "description": "displays all the specified user's settings"
