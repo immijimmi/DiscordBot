@@ -99,21 +99,25 @@ class Meta(HandlerPlugin):
 
         if handler_response is not None:
             if message.content[:len(command)].lower() == command:
-                target_identifier = Methods.clean(message.content[len(command):])
+                required_permissions_options = [Permissions(Permissions.level_admin, [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
 
-                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
-                if not target:
-                    handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
-                    return
-                elif type(target) is list:
-                    handler_response.add(MessageFormats.multiple_user_matches)
-                    return
+                if user_permissions.is_permitted(*required_permissions_options):
+                    target_identifier = Methods.clean(message.content[len(command):])
 
-                target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
+                    target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
+                    if not target:
+                        handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
+                        return
+                    elif type(target) is list:
+                        handler_response.add(MessageFormats.multiple_user_matches)
+                        return
 
-                response = MessageBuilder(recipients=[target])
-                response.add(random.choice(MessageFormats.introductions__username).format(target.name) + "\n" + HandlerMessageFormats.note__help)
+                    target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
 
-                handler_response.add("Introduction sent to {0}.".format(target_name))
+                    response = MessageBuilder(recipients=[target])
+                    response.add(random.choice(MessageFormats.introductions__username).format(target.name) + "\n" + HandlerMessageFormats.note__help)
 
-                return [response]
+                    handler_response.add("Introduction sent to {0}.".format(target_name))
+
+                    return [response]
