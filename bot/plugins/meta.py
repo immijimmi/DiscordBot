@@ -112,7 +112,7 @@ class Meta(HandlerPlugin):
                 target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
 
                 response = MessageBuilder(recipients=[target])
-                response.add(random.choice(MessageFormats.introductions__display_name).format(target.name) + "\n" + HandlerMessageFormats.note__help)
+                response.add(random.choice(MessageFormats.introductions__username).format(target.name) + "\n" + HandlerMessageFormats.note__help)
 
                 handler_response.add("Introduction sent to {0}.".format(target_name))
 
