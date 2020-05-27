@@ -26,11 +26,11 @@ class SymbolLookup:
     visibility = {"public": ":unlock:", "private": ":lock:", "both": ":arrows_clockwise:"}
 
 class MessageFormats:
-    note__user_visibility = "*Note: I am only able to see users that I share a server with.*"
-    note__preventing_multiple_matches = "*Note: Providing the full username and discriminator - `username#0000` - will prevent multiple users being matched.*"
-    note__timeout_duration = "*Note: Timeout duration must be a number of seconds between 1 and {0}.*".format(TimeoutDuration.max_seconds)
-    note__no_nicknames = "*No nicknames set.*"
-    note__no_bot_users = "*There are no users with saved settings.*"
+    note__user_visibility = HandlerMessageFormats.format__note.format("Please note that I can only see users that I share a server with.")
+    note__preventing_multiple_matches = HandlerMessageFormats.format__note.format("Providing the full username and discriminator - `username#0000` - will prevent multiple users being matched.")
+    note__no_nicknames = HandlerMessageFormats.format__note.format("No nicknames set.")
+    note__no_bot_users = HandlerMessageFormats.format__note.format("There are no users with saved settings.")
+    note__timeout_duration = HandlerMessageFormats.format__note.format("Timeout duration must be a number of seconds between 1 and {0}.".format(TimeoutDuration.max_seconds))
 
     placeholder__cannot_find_user = "unable to find user"
 
@@ -41,6 +41,8 @@ class MessageFormats:
     invalid__arguments = "Invalid command arguments: " + HandlerMessageFormats.format__user_input
     nickname_deleted__name_nickname = "Deleted nickname for {0} ({1})."
     cannot_find_nickname__identifier = "No nickname found based on the name: " + HandlerMessageFormats.format__user_input
+
+    introductions__display_name = ["Waddup {0}!"]
 
     _command_template = {
         "": {

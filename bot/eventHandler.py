@@ -80,7 +80,7 @@ class EventHandler():
 
         # If none of the plugins could process the message and return a response
         if not responses[0] and type(responses[0]) is MessageBuilder:
-            responses[0].add("Unrecognised command: " + MessageFormats.format__user_input.format(message.content))
+            responses[0].add(MessageFormats.unrecognised_command__user_input.format(message.content))
 
         await self._send_responses(responses)
         await self._run_callbacks()

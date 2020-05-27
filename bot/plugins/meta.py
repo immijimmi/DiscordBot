@@ -1,8 +1,10 @@
 import sys
 import os
+import random
 
-from ..constants import Methods
+from ..constants import Methods, MessageFormats as HandlerMessageFormats
 from ..classes.permissions import Permissions
+from ..classes.messageBuilder import MessageBuilder
 from .handlerPlugin import HandlerPlugin
 from .constants import MessageFormats
 
@@ -10,7 +12,10 @@ class Meta(HandlerPlugin):
     def __init__(self, handler):
         super().__init__(handler)
 
-        self._event_methods["process_private_message"] += [self._private_message__reboot, self._private_message__help, self._private_message__settings, self._private_message__users]
+        self._event_methods["process_private_message"] += [
+            self._private_message__reboot, self._private_message__help, self._private_message__settings, self._private_message__users,
+            self._private_message__introduce
+            ]
 
     def _private_message__reboot(self, message, handler_response=None):
         async def update_and_restart():
@@ -88,3 +93,27 @@ class Meta(HandlerPlugin):
                     handler_response.title = "**User List:**"
                     handler_response.add("\n".join(["- {0}".format(name) for name in names]))
                     return
+
+    def _private_message__introduce(self, message, handler_response=None):
+        command = "!introduce "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                target_identifier = Methods.clean(message.content[len(command):])
+
+                target = self.handler.try_get_member(target_identifier, requester_id=message.author.id)
+                if not target:
+                    handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
+                    return
+                elif type(target) is list:
+                    handler_response.add(MessageFormats.multiple_user_matches)
+                    return
+
+                target_name = self.handler.try_get_member_name(target.id, requester_id=message.author.id)
+
+                response = MessageBuilder(recipients=[target])
+                response.add(random.choice(MessageFormats.introductions__display_name).format(target.display_name) + "\n" + HandlerMessageFormats.note__help)
+
+                handler_response.add("Introduction sent to {0}.".format(target_name))
+
+                return [response]
