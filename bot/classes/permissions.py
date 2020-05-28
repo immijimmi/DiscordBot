@@ -1,3 +1,5 @@
+from ..constants import MessageFormats
+
 class Permissions:
     levels = {
         "none": 0,
@@ -10,7 +12,9 @@ class Permissions:
         self.tags = list(tags)
 
     def __str__(self):
-        return "Level: {0}; Tags: {1}".format(self.level, ", ".join(self.tags))
+        level_string = list(filter(lambda key: Permissions.levels[key] == self.level, Permissions.levels.keys()))[0]
+
+        return "level: {0}\ntags: {1}".format(level_string, ", ".join(MessageFormats.format__list_item.format(tag) for tag in self.tags))
 
     def __eq__(self, other):
         self_tags_sorted = sorted(self.tags)
