@@ -3,7 +3,8 @@ from discord.state import Status
 from ...classes.messageBuilder import MessageBuilder
 from ...classes.eventTimeout import EventTimeout
 from ...classes.timeoutDuration import TimeoutDuration
-from ...constants import KeyQueryFactories, Defaults, Methods
+from ...constants import KeyQueryFactories, Methods
+from ...defaults import Defaults
 from ..constants import MessageFormats as PluginMessageFormats, SymbolLookup, Arguments
 from ..handlerPlugin import HandlerPlugin
 from .constants import MessageFormats, EventKeys

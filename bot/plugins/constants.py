@@ -2,7 +2,8 @@ from discord.state import Status
 
 from ..classes.timeoutDuration import TimeoutDuration
 from ..classes.permissions import Permissions
-from ..constants import Defaults, MessageFormats as HandlerMessageFormats
+from ..defaults import Defaults
+from ..constants import MessageFormats as HandlerMessageFormats
 
 class Arguments:
     nickname_separator = " as: "
@@ -44,11 +45,16 @@ class MessageFormats:
 
     introductions__username = ["Waddup {0}!", "How's it going {0}?"]
 
+    # Constants for the below commands object
+    admin_permissions = Permissions(Permissions.levels["admin"], [])
+    identifier = "Discord username, ID or nickname"
+    private = SymbolLookup.visibility["private"]
+
     _command_template = {
         "": {
             "usage": [{
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": [],
                 "description": ""
             }],
@@ -60,7 +66,7 @@ class MessageFormats:
         "!help": {
             "usage": [{
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": [],
                 "description": "provides a list of commands"
             }],
@@ -68,17 +74,17 @@ class MessageFormats:
         },
         "!introduce": {
             "usage": [{
-                "permissions": [Permissions(Permissions.levels["admin"], [])],
-                "visibility": SymbolLookup.visibility["private"],
-                "arguments": ["Discord username, ID or nickname"],
+                "permissions": [admin_permissions],
+                "visibility": private,
+                "arguments": [identifier],
                 "description": "sends a greeting message from the bot to the selected user"
             }],
             "children": {}
         },
         "!reboot": {
             "usage": [{
-                "permissions": [Permissions(Permissions.levels["admin"], [])],
-                "visibility": SymbolLookup.visibility["private"],
+                "permissions": [admin_permissions],
+                "visibility": private,
                 "arguments": [],
                 "description": "updates the code base and reboots the machine the bot is running on"
             }],
@@ -86,8 +92,8 @@ class MessageFormats:
         },
         "!users": {
             "usage": [{
-                "permissions": [Permissions(Permissions.levels["admin"], [])],
-                "visibility": SymbolLookup.visibility["private"],
+                "permissions": [admin_permissions],
+                "visibility": private,
                 "arguments": [],
                 "description": "provides a list of users who have saved settings"
             }],
@@ -96,26 +102,72 @@ class MessageFormats:
         "!settings": {
             "usage": [{
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": [],
                 "description": "displays all your settings"
             }, {
-                "permissions": [Permissions(Permissions.levels["admin"], [])],
-                "visibility": SymbolLookup.visibility["private"],
-                "arguments": ["Discord username, ID or nickname"],
+                "permissions": [admin_permissions],
+                "visibility": private,
+                "arguments": [identifier],
                 "description": "displays all the specified user's settings"
             }],
             "children": {}
         },
+        "!permissions": {
+            "usage": [{
+                "permissions": [Defaults.permissions],
+                "visibility": private,
+                "arguments": [],
+                "description": "displays your current permissions"
+            }],
+            "children": {
+                "!permissions list": {
+                    "usage": [{
+                        "permissions": [admin_permissions],
+                        "visibility": private,
+                        "arguments": [],
+                        "description": "lists all permissions levels and tags"
+                    }],
+                    "children": {}
+                },
+                "!permissions level": {
+                    "usage": [{
+                        "permissions": [admin_permissions],
+                        "visibility": private,
+                        "arguments": ["level", identifier],
+                        "description": "changes the permissions level of the selected user"
+                    }],
+                    "children": {}
+                },
+                "!permissions tag": {
+                    "usage": [{
+                        "permissions": [admin_permissions],
+                        "visibility": private,
+                        "arguments": ["tag", identifier],
+                        "description": "adds the specified permission tag to the selected user"
+                    }],
+                    "children": {}
+                },
+                "!permissions untag": {
+                    "usage": [{
+                        "permissions": [admin_permissions],
+                        "visibility": private,
+                        "arguments": ["tag", identifier],
+                        "description": "removes the specified permission tag from the selected user"
+                    }],
+                    "children": {}
+                }
+            }
+        },
         "!welcome": {
             "usage": [{
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": [],
                 "description": "displays your welcome message settings"
             }, {
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": ["on/off"],
                 "description": "turns welcome messages on or off"
             }],
@@ -123,7 +175,7 @@ class MessageFormats:
                 "!welcome timeout": {
                     "usage": [{
                         "permissions": [Defaults.permissions],
-                        "visibility": SymbolLookup.visibility["private"],
+                        "visibility": private,
                         "arguments": ["new timeout duration"],
                         "description": "sets the duration of timeouts on welcome messages to the specified value"
                     }],
@@ -134,12 +186,12 @@ class MessageFormats:
         "!watchlist": {
             "usage": [{
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": [],
                 "description": "displays the statuses of users in your watchlist, and your watchlist settings"
             }, {
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": ["on/off"],
                 "description": "turns watchlist alerts on or off"
             }],
@@ -147,8 +199,8 @@ class MessageFormats:
                 "!watchlist add": {
                     "usage": [{
                         "permissions": [Defaults.permissions],
-                        "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["Discord username, ID or nickname"],
+                        "visibility": private,
+                        "arguments": [identifier],
                         "description": "adds the specified user to your watchlist"
                     }],
                     "children": {}
@@ -156,8 +208,8 @@ class MessageFormats:
                 "!watchlist remove": {
                     "usage": [{
                         "permissions": [Defaults.permissions],
-                        "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["Discord username, ID or nickname"],
+                        "visibility": private,
+                        "arguments": [identifier],
                         "description": "removes the specified user from your watchlist"
                     }],
                     "children": {}
@@ -165,7 +217,7 @@ class MessageFormats:
                 "!watchlist timeout": {
                     "usage": [{
                         "permissions": [Defaults.permissions],
-                        "visibility": SymbolLookup.visibility["private"],
+                        "visibility": private,
                         "arguments": ["new timeout duration"],
                         "description": "sets the duration of timeouts on watchlist alerts to the specified value"
                     }],
@@ -176,7 +228,7 @@ class MessageFormats:
         "!nicknames": {
             "usage": [{
                 "permissions": [Defaults.permissions],
-                "visibility": SymbolLookup.visibility["private"],
+                "visibility": private,
                 "arguments": [],
                 "description": "displays the nicknames you have set for other users"
             }],
@@ -184,8 +236,8 @@ class MessageFormats:
                 "!nicknames add": {
                     "usage": [{
                         "permissions": [Defaults.permissions],
-                        "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["Discord username, ID or nickname`**{0}**`new nickname".format(Arguments.nickname_separator)],
+                        "visibility": private,
+                        "arguments": ["{0}`**{1}**`new nickname".format(identifier, Arguments.nickname_separator)],
                         "description": "registers your nickname to the specified user"
                     }],
                     "children": {}
@@ -193,8 +245,8 @@ class MessageFormats:
                 "!nicknames remove": {
                     "usage": [{
                         "permissions": [Defaults.permissions],
-                        "visibility": SymbolLookup.visibility["private"],
-                        "arguments": ["Discord username, ID or nickname"],
+                        "visibility": private,
+                        "arguments": [identifier],
                         "description": "deletes the specified nickname"
                     }],
                     "children": {}

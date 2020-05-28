@@ -6,7 +6,8 @@ import json
 import logging
 from collections import deque
 
-from .constants import KeyQueryFactories, Defaults, Methods, MessageFormats
+from .defaults import Defaults
+from .constants import KeyQueryFactories, Methods, MessageFormats
 from .plugins.essentials import Essentials
 from .plugins.meta import Meta
 from .classes.permissions import Permissions

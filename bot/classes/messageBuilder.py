@@ -1,6 +1,6 @@
 from collections import deque
 
-from .constants import Defaults
+from .defaults import Defaults
 
 class MessageBuilder:
     def __init__(self, recipients=[], delimiter=Defaults.message_delimiter):

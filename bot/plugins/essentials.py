@@ -1,6 +1,7 @@
 from ..classes.timeoutDuration import TimeoutDuration
 from ..classes.permissions import Permissions
 from ..constants import Methods, MessageFormats as HandlerMessageFormats
+from ..defaults import Defaults
 from .constants import MessageFormats, Arguments
 from .handlerPlugin import HandlerPlugin
 
@@ -10,10 +11,11 @@ class Essentials(HandlerPlugin):
 
         self._event_methods["process_private_message"] += [
             self._private_message__welcome, self._private_message__welcome_toggle, self._private_message__welcome_timeout_change,
-            self._private_message__nicknames, self._private_message__nicknames_add, self._private_message__nicknames_remove
+            self._private_message__nicknames, self._private_message__nicknames_add, self._private_message__nicknames_remove,
+            self._private_message__permissions
             ]
 
-        self._meta_methods["settings"] += [self._settings__welcome, self._settings__nicknames]
+        self._meta_methods["settings"] += [self._settings__welcome, self._settings__nicknames, self._settings__permissions]
 
     def _private_message__welcome(self, message, handler_response=None):
         command = "!welcome"
@@ -132,13 +134,13 @@ class Essentials(HandlerPlugin):
                 valid_possible_arguments = list(filter(lambda args: not any([substring in args[1] for substring in invalid_nickname_substrings]), non_empty_possible_arguments))
                 if not valid_possible_arguments:
                     handler_response.add("Nicknames cannot contain the following strings of text: {0}".format(
-                        ", ".join([HandlerMessageFormats.format__list_item.format(substring) for substring in invalid_nickname_substrings])
+                        ", ".join(HandlerMessageFormats.format__list_item.format(substring) for substring in invalid_nickname_substrings)
                         )
                     )
                     return
                 if len(valid_possible_arguments) > 1:
                     handler_response.add("Conflicting nickname options: {0}".format(
-                        ", ".join([HandlerMessageFormats.format__list_item.format(args) for args in valid_possible_arguments])
+                        ", ".join(HandlerMessageFormats.format__list_item.format(args) for args in valid_possible_arguments)
                         )
                     )
                     return
@@ -191,6 +193,18 @@ class Essentials(HandlerPlugin):
                 else:
                     handler_response.add(MessageFormats.cannot_find_nickname__identifier.format(target_identifier))
                     return
-    
+
+    def _private_message__permissions(self, message, handler_response=None):
+        command = "!permissions"
+
+        if handler_response is not None:
+            if Methods.clean(message.content).lower() == command:
+                return self._settings__permissions(message.author.id, handler_response)
+
+    def _settings__permissions(self, user_id, handler_response):
+        user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(user_id)]))
+
+        handler_response.add("**Permissions:**\n{0}".format(user_permissions))
+
     def __is_permissions_tag(self, tag):
         return tag in Permissions.tags or any(tag in plugin.permissions_tags for plugin in self.handler.plugins)
