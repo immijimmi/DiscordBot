@@ -49,7 +49,7 @@ class Meta(HandlerPlugin):
                     if not user_permissions.is_permitted(*required_permissions_options):
                         continue
 
-                    arguments_string = " ".join(["`{0}`".format(argument) for argument in usage["arguments"]])
+                    arguments_string = " ".join("`{0}`".format(argument) for argument in usage["arguments"])
                     result_string = "**- {1}** {2} {0} *{3}*".format(usage["visibility"], command_string, arguments_string, usage["description"])
 
                     result.append(result_string)
@@ -91,7 +91,7 @@ class Meta(HandlerPlugin):
                         return
 
                     handler_response.title = "**User List:**"
-                    handler_response.add("\n".join(["- {0}".format(name) for name in names]))
+                    handler_response.add("\n".join("- {0}".format(name) for name in names))
                     return
 
     def _private_message__introduce(self, message, handler_response=None):
