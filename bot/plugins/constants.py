@@ -272,7 +272,7 @@ class MessageFormats:
                 ],
                 "visibility": public,
                 "arguments": [],
-                "description": ""
+                "description": "?"
             }],
             "children": {}
         }
