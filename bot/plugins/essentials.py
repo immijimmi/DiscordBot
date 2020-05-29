@@ -12,7 +12,8 @@ class Essentials(HandlerPlugin):
         self._event_methods["process_private_message"] += [
             self._private_message__welcome, self._private_message__welcome_toggle, self._private_message__welcome_timeout_change,
             self._private_message__nicknames, self._private_message__nicknames_add, self._private_message__nicknames_remove,
-            self._private_message__permissions
+            self._private_message__permissions, self._private_message__permissions_level, self._private_message__permissions_tag,
+            self._private_message__permissions_untag, self._private_message__permissions_list
             ]
 
         self._meta_methods["settings"] += [self._settings__welcome, self._settings__nicknames, self._settings__permissions]
@@ -206,5 +207,130 @@ class Essentials(HandlerPlugin):
 
         handler_response.add("**Permissions:**\n{0}".format(user_permissions))
 
-    def __is_permissions_tag(self, tag):
-        return tag in Permissions.tags or any(tag in plugin.permissions_tags for plugin in self.handler.plugins)
+    def _private_message__permissions_level(self, message, handler_response=None):
+        command = "!permissions level "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                required_permissions_options = [Permissions(Permissions.levels["admin"], [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
+
+                if user_permissions.is_permitted(*required_permissions_options):
+                    arguments_string = Methods.clean(message.content[len(command):])
+                    
+                    if Arguments.permissions_separator not in arguments_string:
+                        handler_response.add(MessageFormats.invalid__arguments.format(arguments_string))
+                        return
+
+                    level_argument = Methods.clean(arguments_string[:arguments_string.find(Arguments.permissions_separator)]).lower()
+                    target_identifier = Methods.clean(arguments_string[arguments_string.find(Arguments.permissions_separator)+1:])
+
+                    target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
+                    if not target_id:
+                        handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
+                        return
+                    elif type(target_id) is list:
+                        handler_response.add(MessageFormats.multiple_user_matches)
+                        return
+
+                    if not level_argument in Permissions.levels:
+                        handler_response.add("No matching permissions level found for: " + HandlerMessageFormats.format__user_input.format(level_argument))
+                        return
+
+                    target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id)
+
+                    target_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(target_id)]))
+                    if Permissions.levels[level_argument] != target_permissions.level:
+                        target_permissions.level = Permissions.levels[level_argument]
+                        self.handler.state.registered_set(target_permissions.data, "user_permissions_data", [str(target_id)])
+
+                    handler_response.add(MessageFormats.permissions_edited__name.format(target_name))
+
+    def _private_message__permissions_tag(self, message, handler_response=None):
+        command = "!permissions tag "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                required_permissions_options = [Permissions(Permissions.levels["admin"], [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
+
+                if user_permissions.is_permitted(*required_permissions_options):
+                    arguments_string = Methods.clean(message.content[len(command):])
+                    
+                    if Arguments.permissions_separator not in arguments_string:
+                        handler_response.add(MessageFormats.invalid__arguments.format(arguments_string))
+                        return
+
+                    tag_argument = Methods.clean(arguments_string[:arguments_string.find(Arguments.permissions_separator)]).lower()
+                    target_identifier = Methods.clean(arguments_string[arguments_string.find(Arguments.permissions_separator)+1:])
+
+                    target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
+                    if not target_id:
+                        handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
+                        return
+                    elif type(target_id) is list:
+                        handler_response.add(MessageFormats.multiple_user_matches)
+                        return
+
+                    if not tag_argument in self._get_all_permissions_tags():
+                        handler_response.add("No matching permissions tag found for: " + HandlerMessageFormats.format__user_input.format(tag_argument))
+                        return
+
+                    target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id)
+
+                    target_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(target_id)]))
+                    if not tag_argument in target_permissions.tags:
+                        target_permissions.tags.append(tag_argument)
+                        self.handler.state.registered_set(target_permissions.data, "user_permissions_data", [str(target_id)])
+
+                    handler_response.add(MessageFormats.permissions_edited__name.format(target_name))
+
+    def _private_message__permissions_untag(self, message, handler_response=None):
+        command = "!permissions untag "
+
+        if handler_response is not None:
+            if message.content[:len(command)].lower() == command:
+                required_permissions_options = [Permissions(Permissions.levels["admin"], [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
+
+                if user_permissions.is_permitted(*required_permissions_options):
+                    arguments_string = Methods.clean(message.content[len(command):])
+                    
+                    if Arguments.permissions_separator not in arguments_string:
+                        handler_response.add(MessageFormats.invalid__arguments.format(arguments_string))
+                        return
+
+                    tag_argument = Methods.clean(arguments_string[:arguments_string.find(Arguments.permissions_separator)]).lower()
+                    target_identifier = Methods.clean(arguments_string[arguments_string.find(Arguments.permissions_separator)+1:])
+
+                    target_id = self.handler.try_get_member_id(target_identifier, requester_id=message.author.id)
+                    if not target_id:
+                        handler_response.add(MessageFormats.cannot_find_user__identifier.format(target_identifier))
+                        return
+                    elif type(target_id) is list:
+                        handler_response.add(MessageFormats.multiple_user_matches)
+                        return
+
+                    target_name = self.handler.try_get_member_name(target_id, requester_id=message.author.id)
+
+                    target_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(target_id)]))
+                    if not tag_argument in target_permissions.tags:
+                        handler_response.add("No matching permissions tag found for: " + HandlerMessageFormats.format__user_input.format(tag_argument))
+                        return
+
+                    target_permissions.tags = list(filter(lambda tag: tag != tag_argument, target_permissions.tags))
+                    self.handler.state.registered_set(target_permissions.data, "user_permissions_data", [str(target_id)])
+
+                    handler_response.add(MessageFormats.permissions_edited__name.format(target_name))
+
+    def _private_message__permissions_list(self, message, handler_response=None):
+        command = "!permissions list"
+
+        if handler_response is not None:
+            if Methods.clean(message.content).lower() == command:
+                required_permissions_options = [Permissions(Permissions.levels["admin"], [])]
+                user_permissions = Permissions(**self.handler.state.registered_get("user_permissions_data", [str(message.author.id)]))
+
+                if user_permissions.is_permitted(*required_permissions_options):
+                    handler_response.add("**Permissions Levels:**" + "\n" + "\n".join("- {0}".format(level) for level in Permissions.levels.keys()))
+                    handler_response.add("**Permissions Tags:**" + "\n" + "\n".join("- {0}".format(tag) for tag in self._get_all_permissions_tags()))

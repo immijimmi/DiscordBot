@@ -49,7 +49,7 @@ class Meta(HandlerPlugin):
                     if not user_permissions.is_permitted(*required_permissions_options):
                         continue
 
-                    arguments_string = " ".join("`{0}`".format(argument) for argument in usage["arguments"])
+                    arguments_string = " ".join("`<{0}>`".format(argument) for argument in usage["arguments"])
                     result_string = "**- {1}** {2} {0} *{3}*".format(usage["visibility"], command_string, arguments_string, usage["description"])
 
                     result.append(result_string)

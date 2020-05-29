@@ -51,8 +51,10 @@ class EventHandler():
             del self._timeouts[timeout_key]
             return True
 
-    #Event method
     async def on_ready(self):
+        """
+        Event Method
+        """
         responses = []
 
         for plugin in self.plugins:
@@ -63,8 +65,10 @@ class EventHandler():
         await self._send_responses(responses)
         await self._run_callbacks()
 
-    #Event method
     async def process_private_message(self, message):
+        """
+        Event Method
+        """
         timeout_triggered = self.try_trigger_timeout("process_private_message|{0}|{1}".format(message.author.id, message.content), Defaults.timeout_duration)
 
         if timeout_triggered:
@@ -86,8 +90,10 @@ class EventHandler():
         await self._send_responses(responses)
         await self._run_callbacks()
 
-    # Event method
     async def process_public_message(self, message):
+        """
+        Event Method
+        """
         timeout_triggered = self.try_trigger_timeout("process_public_message|{0}|{1}".format(message.author.id, message.content), Defaults.timeout_duration)
 
         if timeout_triggered:
@@ -109,8 +115,10 @@ class EventHandler():
         await self._send_responses(responses)
         await self._run_callbacks()
 
-    #Event method
     async def user_online(self, before, after):
+        """
+        Event Method
+        """
         setting_enabled = self.state.registered_get("user_welcome_enabled", [str(after.id)])
 
         response = None
@@ -132,8 +140,10 @@ class EventHandler():
         await self._send_responses(responses)
         await self._run_callbacks()
 
-    #Event method
     async def user_away(self, before, after):
+        """
+        Event Method
+        """
         responses = []
 
         for plugin in self.plugins:

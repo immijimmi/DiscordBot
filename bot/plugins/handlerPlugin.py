@@ -1,4 +1,5 @@
 import abc
+from functools import reduce
 
 from ..classes.permissions import Permissions
 from ..constants import Methods
@@ -25,6 +26,9 @@ class HandlerPlugin(abc.ABC):
         self._register_paths()
 
     def on_ready(self, handler_response=None):
+        """
+        Event Method
+        """
         responses = []
 
         for method in self._event_methods["on_ready"]:
@@ -35,6 +39,9 @@ class HandlerPlugin(abc.ABC):
         return responses
 
     def process_private_message(self, message, handler_response=None):
+        """
+        Event Method
+        """
         responses = []
 
         for method in self._event_methods["process_private_message"]:
@@ -45,6 +52,9 @@ class HandlerPlugin(abc.ABC):
         return responses
 
     def process_public_message(self, message, handler_response=None):
+        """
+        Event Method
+        """
         responses = []
 
         for method in self._event_methods["process_public_message"]:
@@ -55,6 +65,9 @@ class HandlerPlugin(abc.ABC):
         return responses
 
     def user_online(self, before, after, handler_response=None):
+        """
+        Event Method
+        """
         responses = []
 
         for method in self._event_methods["user_online"]:
@@ -65,6 +78,9 @@ class HandlerPlugin(abc.ABC):
         return responses
 
     def user_away(self, before, after, handler_response=None):
+        """
+        Event Method
+        """
         responses = []
 
         for method in self._event_methods["user_away"]:
@@ -73,6 +89,9 @@ class HandlerPlugin(abc.ABC):
             responses += method_responses if method_responses else []
 
         return responses
+
+    def _get_all_permissions_tags(self):
+        return list(Permissions.tags) + list(reduce(lambda a,b: a+b, (list(plugin.permissions_tags) for plugin in self.handler.plugins)))
 
     def _private_message__settings(self, message, handler_response=None):
         command = "!settings"

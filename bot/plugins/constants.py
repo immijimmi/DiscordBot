@@ -7,6 +7,7 @@ from ..constants import MessageFormats as HandlerMessageFormats
 
 class Arguments:
     nickname_separator = " as: "
+    permissions_separator = " "
 
     toggle_change_strings = ["toggle"]
     toggle_on_strings = ["on", "enable", "enabled"]
@@ -42,10 +43,13 @@ class MessageFormats:
     invalid__arguments = "Invalid command arguments: " + HandlerMessageFormats.format__user_input
     nickname_deleted__name_nickname = "Deleted nickname for {0} ({1})."
     cannot_find_nickname__identifier = "No nickname found based on the name: " + HandlerMessageFormats.format__user_input
+    permissions_edited__name = "Permissions edited for {0}."
 
     introductions__username = ["Waddup {0}!", "How's it going {0}?"]
 
     # Constants for the below commands object
+    format__arguments_separator = ">`**{0}**`<"
+
     admin_permissions = Permissions(Permissions.levels["admin"], [])
     identifier = "Discord username, ID or nickname"
     private = SymbolLookup.visibility["private"]
@@ -134,7 +138,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [admin_permissions],
                         "visibility": private,
-                        "arguments": ["level", identifier],
+                        "arguments": [("level" + format__arguments_separator + "{1}").format(Arguments.permissions_separator, identifier)],
                         "description": "changes the permissions level of the selected user"
                     }],
                     "children": {}
@@ -143,7 +147,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [admin_permissions],
                         "visibility": private,
-                        "arguments": ["tag", identifier],
+                        "arguments": [("tag" + format__arguments_separator + "{1}").format(Arguments.permissions_separator, identifier)],
                         "description": "adds the specified permission tag to the selected user"
                     }],
                     "children": {}
@@ -152,7 +156,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [admin_permissions],
                         "visibility": private,
-                        "arguments": ["tag", identifier],
+                        "arguments": [("tag" + format__arguments_separator + "{1}").format(Arguments.permissions_separator, identifier)],
                         "description": "removes the specified permission tag from the selected user"
                     }],
                     "children": {}
@@ -237,7 +241,7 @@ class MessageFormats:
                     "usage": [{
                         "permissions": [Defaults.permissions],
                         "visibility": private,
-                        "arguments": ["{0}`**{1}**`new nickname".format(identifier, Arguments.nickname_separator)],
+                        "arguments": [("{0}" + format__arguments_separator.format("{1}") + "new nickname").format(identifier, Arguments.nickname_separator)],
                         "description": "registers your nickname to the specified user"
                     }],
                     "children": {}
