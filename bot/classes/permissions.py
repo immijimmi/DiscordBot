@@ -5,7 +5,9 @@ class Permissions:
         "none": 0,
         "admin": 1
     }
-    tags = []  # Only for generic tags. Plugin-specific tags should be added to their own lists inside the plugin constructor
+    tags = [  # Only for generic tags. Plugin-specific tags should be added to their own lists inside the plugin constructor
+        tag__hidden:="hidden"
+    ]
 
     def __init__(self, level, tags):
         self.level = level

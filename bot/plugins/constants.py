@@ -4,6 +4,7 @@ from ..classes.timeoutDuration import TimeoutDuration
 from ..classes.permissions import Permissions
 from ..defaults import Defaults
 from ..constants import MessageFormats as HandlerMessageFormats
+from .dadi.constants import PermissionsValues as DadiPermissionsValues
 
 class Arguments:
     nickname_separator = " as: "
@@ -51,8 +52,12 @@ class MessageFormats:
     format__arguments_separator = ">`**{0}**`<"
 
     admin_permissions = Permissions(Permissions.levels["admin"], [])
+
     identifier = "Discord username, ID or nickname"
+
     private = SymbolLookup.visibility["private"]
+    public = SymbolLookup.visibility["public"]
+    both = SymbolLookup.visibility["both"]
 
     _command_template = {
         "": {
@@ -256,5 +261,18 @@ class MessageFormats:
                     "children": {}
                 }
             }
+        },
+        "&kavica": {
+            "usage": [{
+                "permissions": [
+                    Permissions(Permissions.levels["none"], tags=[DadiPermissionsValues.tag__dadi]),
+                    Permissions(Permissions.levels["none"], tags=[Permissions.tag__hidden]),
+                    admin_permissions
+                ],
+                "visibility": public,
+                "arguments": [],
+                "description": ""
+            }],
+            "children": {}
         }
     }
