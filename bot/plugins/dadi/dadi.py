@@ -1,3 +1,4 @@
+from ...constants import Methods
 from ..handlerPlugin import HandlerPlugin
 from .constants import PermissionsValues
 

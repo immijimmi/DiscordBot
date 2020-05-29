@@ -4,7 +4,7 @@ from ..classes.timeoutDuration import TimeoutDuration
 from ..classes.permissions import Permissions
 from ..defaults import Defaults
 from ..constants import MessageFormats as HandlerMessageFormats
-from .dadi.constants import PermissionsValues as DadiPermissionsValues
+# from .dadi.constants import PermissionsValues as DadiPermissionsValues  # Circular import - workaround used for the time being
 
 class Arguments:
     nickname_separator = " as: "
@@ -265,7 +265,8 @@ class MessageFormats:
         "&kavica": {
             "usage": [{
                 "permissions": [
-                    Permissions(Permissions.levels["none"], tags=[DadiPermissionsValues.tag__dadi]),
+                    # Permissions(Permissions.levels["none"], tags=[DadiPermissionsValues.tag__dadi]),  # Workaround used below
+                    Permissions(Permissions.levels["none"], tags=["dadi"]),
                     Permissions(Permissions.levels["none"], tags=[Permissions.tag__hidden]),
                     admin_permissions
                 ],
