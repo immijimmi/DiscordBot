@@ -1,2 +1,3 @@
 class PermissionsValues:
-    tags = [tag__dadi:="dadi"]
+    tag__dadi = "dadi"
+    tags = [tag__dadi]
