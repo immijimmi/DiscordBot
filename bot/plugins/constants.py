@@ -262,6 +262,19 @@ class MessageFormats:
                 }
             }
         },
+        "!mc": {
+            "usage": [{
+                "permissions": [
+                    Permissions(Permissions.levels["none"], tags=["kiko"]),
+                    Permissions(Permissions.levels["none"], tags=[Permissions.tag__hidden]),
+                    admin_permissions
+                ],
+                "visibility": public,
+                "arguments": [],
+                "description": "provides instructions for joining The Sanctuary's Minecraft server"
+            }],
+            "children": {}
+        },
         "&kavica": {
             "usage": [{
                 "permissions": [

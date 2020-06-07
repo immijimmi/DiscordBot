@@ -1,0 +1,1 @@
+from bot.plugins.kiko.kiko import Kiko

@@ -273,3 +273,5 @@ class EventHandler():
         self.state.register("user_welcome_timeout_seconds", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "timeout_duration"], [{}, {}, {}, Defaults.timeout_duration.seconds])
         self.state.register("user_welcome_enabled", ["user_settings", KeyQueryFactories.dynamic_key, "welcome", "enabled"], [{}, {}, {}, True])
         self.state.register("user_permissions_data", ["user_settings", KeyQueryFactories.dynamic_key, "permissions"], [{}, {}, Defaults.permissions.data])
+
+        self.state.register("all_plugins_settings", ["plugin_settings"], [{}])
