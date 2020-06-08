@@ -14,6 +14,5 @@ Download Mods
 -  Search for "Tekkit Classic Reloaded" at the top - click and install
 -  Enter name at the bottom left and play
 
-Enter the server ip below:
-*{0}*
+Enter the server ip: **`{0}`**
 """
