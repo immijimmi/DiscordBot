@@ -275,3 +275,5 @@ class EventHandler():
         self.state.register("user_permissions_data", ["user_settings", KeyQueryFactories.dynamic_key, "permissions"], [{}, {}, Defaults.permissions.data])
 
         self.state.register("all_plugins_settings", ["plugin_settings"], [{}])
+
+        self.state.register("all_server_ids", ["server_ids"], [{}])
